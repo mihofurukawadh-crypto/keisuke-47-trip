@@ -776,6 +776,26 @@
       font-weight: 900;
     }
 
+    .roadmap-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 24px;
+      background: rgba(255,255,255,0.25);
+      color: white;
+      border: 2px solid rgba(255,255,255,0.6);
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s;
+    }
+
+    .roadmap-btn:active {
+      background: rgba(255,255,255,0.4);
+      transform: scale(0.96);
+    }
+
     .plan-year-card {
       background: var(--card);
       border-radius: 16px;
@@ -1062,6 +1082,7 @@
   <div class="view" id="view-plan">
     <div class="plan-header">
       <h1>📅 けいかく</h1>
+      <a href="roadmap.html" class="roadmap-btn">🗺️ 10年ロードマップを見る</a>
     </div>
     <div id="planYearCards"></div>
   </div>

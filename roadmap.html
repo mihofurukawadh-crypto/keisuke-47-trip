@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>けいすけ&美穂の47都道府県制覇プラン</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Kaisei+Opti:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --sand: #F5F0E8;
+  --warm-white: #FDFBF7;
+  --bark: #3D2B1F;
+  --bark-light: #5C4033;
+  --leaf: #6B8F5E;
+  --leaf-light: #8FB580;
+  --sky: #7BA7C9;
+  --sky-light: #A8CCE0;
+  --sunset: #E8956A;
+  --sunset-light: #F0B494;
+  --sakura: #E8B4C8;
+  --sakura-light: #F0D0DE;
+  --earth: #C4A882;
+  --earth-light: #D9C4A8;
+  --snow: #D4DFE8;
+  --autumn: #D4753E;
+  --summer: #4A90A4;
+  --spring: #C87F9E;
+}
+
+body {
+  font-family: 'Zen Maru Gothic', sans-serif;
+  background: var(--sand);
+  color: var(--bark);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+.back-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bark);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(180deg, var(--sky-light) 0%, var(--sand) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(232,180,200,0.3) 0%, transparent 40%),
+    radial-gradient(circle at 80% 60%, rgba(123,167,201,0.2) 0%, transparent 40%);
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero h1 {
+  font-family: 'Kaisei Opti', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--bark);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.hero .subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: var(--bark-light);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.hero .desc {
+  font-size: 0.95rem;
+  color: var(--bark-light);
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  opacity: 0.85;
+}
+
+.progress-summary {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.progress-item {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  text-align: center;
+  min-width: 120px;
+}
+
+.progress-item .num {
+  font-family: 'Kaisei Opti', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--leaf);
+}
+
+.progress-item .label { font-size: 0.8rem; color: var(--bark-light); }
+
+.scroll-hint {
+  margin-top: 2.5rem;
+  font-size: 0.85rem;
+  color: var(--bark-light);
+  opacity: 0.6;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+.year-section { padding: 3rem 1.5rem; max-width: 900px; margin: 0 auto; }
+
+.year-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+
+.year-badge {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Kaisei Opti', serif; font-weight: 700; font-size: 0.85rem;
+  color: white; flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.year-title { font-family: 'Kaisei Opti', serif; font-size: 1.5rem; font-weight: 700; }
+.year-age { font-size: 0.9rem; color: var(--bark-light); font-weight: 500; }
+
+.year-concept {
+  margin: 0.75rem 0 1.5rem 0; padding: 1rem 1.25rem;
+  background: rgba(255,255,255,0.6); border-radius: 12px;
+  font-size: 0.9rem; color: var(--bark-light);
+  border-left: 4px solid var(--earth);
+}
+
+.trip-cards { display: flex; flex-direction: column; gap: 1rem; }
+
+.trip-card {
+  background: var(--warm-white); border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.trip-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+
+.trip-card-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;
+}
+
+.trip-pref { font-weight: 700; font-size: 1.1rem; }
+
+.trip-season {
+  font-size: 0.75rem; padding: 0.2rem 0.7rem; border-radius: 20px;
+  font-weight: 500; white-space: nowrap;
+}
+
+.season-spring { background: var(--sakura-light); color: var(--spring); }
+.season-summer { background: rgba(74,144,164,0.15); color: var(--summer); }
+.season-autumn { background: rgba(212,117,62,0.15); color: var(--autumn); }
+.season-winter { background: var(--snow); color: var(--sky); }
+
+.trip-reason { font-size: 0.85rem; color: var(--bark-light); margin-bottom: 0.4rem; }
+.trip-highlights { font-size: 0.82rem; color: var(--leaf); font-weight: 500; }
+.trip-transport { font-size: 0.78rem; color: var(--earth); margin-top: 0.4rem; }
+
+.divider {
+  max-width: 900px; margin: 0 auto; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--earth-light), transparent);
+}
+
+.footer {
+  text-align: center; padding: 3rem 1.5rem;
+  background: linear-gradient(180deg, var(--sand) 0%, var(--earth-light) 100%);
+}
+
+.footer h2 { font-family: 'Kaisei Opti', serif; font-size: 1.5rem; margin-bottom: 0.5rem; }
+.footer p { font-size: 0.9rem; color: var(--bark-light); max-width: 500px; margin: 0 auto; }
+
+.tips-section { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
+
+.tips-box {
+  background: var(--warm-white); border-radius: 16px; padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.tips-box h3 { font-family: 'Kaisei Opti', serif; font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--leaf); }
+.tips-box ul { list-style: none; padding: 0; }
+
+.tips-box li {
+  font-size: 0.85rem; padding: 0.4rem 0; padding-left: 1.2rem;
+  position: relative; color: var(--bark-light);
+}
+
+.tips-box li::before { content: '\2726'; position: absolute; left: 0; color: var(--sunset); font-size: 0.7rem; }
+
+@media (max-width: 600px) {
+  .year-section { padding: 2rem 1rem; }
+  .trip-card { padding: 1rem; }
+  .progress-summary { gap: 0.75rem; }
+  .progress-item { min-width: 90px; padding: 0.75rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<button class="back-btn" onclick="history.back()">← もどる</button>
+
+<div class="hero">
+  <div class="hero-content">
+    <h1>けいすけ&美穂の<br>47都道府県制覇プラン</h1>
+    <p class="subtitle">2025年〜2034年｜10年間の親子旅ロードマップ</p>
+    <p class="desc">けいすけくんの成長に合わせて、無理なく・楽しく・お得に。<br>滋賀県を拠点に、日本全国を巡る10年間の旅の計画。</p>
+    <div class="progress-summary">
+      <div class="progress-item">
+        <div class="num">47</div>
+        <div class="label">都道府県</div>
+      </div>
+      <div class="progress-item">
+        <div class="num">10</div>
+        <div class="label">年間</div>
+      </div>
+      <div class="progress-item">
+        <div class="num">0→10</div>
+        <div class="label">けいすけの成長</div>
+      </div>
+    </div>
+    <div class="scroll-hint">↓ スクロールしてプランを見る</div>
+  </div>
+</div>
+
+<!-- Year 1: 2025 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--sakura);">2025</div>
+    <div>
+      <div class="year-title">Year 1 — はじめての旅</div>
+      <div class="year-age">けいすけ 0〜1歳 ／ 近場でゆったり</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    👶 赤ちゃん連れは移動距離を最小限に。車で2時間以内の近畿圏から。授乳室・おむつ替え施設が充実したスポット中心。滋賀県はホームなのでカウント済み！
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">① 滋賀県（ホーム）</span>
+        <span class="trip-season season-spring">通年 🏠</span>
+      </div>
+      <div class="trip-reason">拠点なのでカウント！地元のお出かけを楽しもう</div>
+      <div class="trip-highlights">🍃 琵琶湖畔のお散歩・近江八幡・彦根城周辺</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">② 京都府</span>
+        <span class="trip-season season-spring">5〜6月 🌿</span>
+      </div>
+      <div class="trip-reason">滋賀から電車30分。混雑を避けて新緑の季節に</div>
+      <div class="trip-highlights">🍃 嵐山・京都水族館（授乳室完備）</div>
+      <div class="trip-transport">🚃 JRで約30分 / 日帰りOK</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">③ 大阪府</span>
+        <span class="trip-season season-autumn">11月 🍂</span>
+      </div>
+      <div class="trip-reason">通い慣れたエリア。閑散期の平日にのんびり</div>
+      <div class="trip-highlights">🍃 天王寺動物園・海遊館（ベビーカーOK）</div>
+      <div class="trip-transport">🚃 JRで約1時間 / 日帰り〜1泊</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">④ 奈良県</span>
+        <span class="trip-season season-spring">4月 🌸</span>
+      </div>
+      <div class="trip-reason">広い公園が多くベビーカーで回りやすい</div>
+      <div class="trip-highlights">🍃 奈良公園・東大寺周辺をお散歩</div>
+      <div class="trip-transport">🚃 近鉄で約1時間 / 日帰りOK</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 2: 2026 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--leaf);">2026</div>
+    <div>
+      <div class="year-title">Year 2 — 近畿を広げる</div>
+      <div class="year-age">けいすけ 1〜2歳 ／ よちよち歩き開始</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    🧸 歩き始めて好奇心旺盛に。まだ長距離移動は避けたいけど、車で2〜3時間圏内に範囲を広げる。動物園・水族館が大好きな時期！
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑤ 三重県</span>
+        <span class="trip-season season-spring">5月（GW後の平日）🌿</span>
+      </div>
+      <div class="trip-reason">GW明けなら空いてる＆気候◎。鳥羽水族館は子連れの聖地</div>
+      <div class="trip-highlights">🍃 鳥羽水族館・伊勢志摩の海辺</div>
+      <div class="trip-transport">🚗 車で約2時間 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑥ 兵庫県</span>
+        <span class="trip-season season-autumn">11月 🍂</span>
+      </div>
+      <div class="trip-reason">閑散期の神戸は快適。異人館エリアはベビーカーで散策OK</div>
+      <div class="trip-highlights">🍃 神戸どうぶつ王国・須磨水族園</div>
+      <div class="trip-transport">🚃 JRで約1.5時間 / 日帰り〜1泊</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑦ 和歌山県</span>
+        <span class="trip-season season-winter">2月 ❄️</span>
+      </div>
+      <div class="trip-reason">冬の閑散期で安い！アドベンチャーワールドのパンダは小さい子でも大喜び</div>
+      <div class="trip-highlights">🍃 アドベンチャーワールド・白浜温泉</div>
+      <div class="trip-transport">🚗 車で約3時間 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑧ 福井県</span>
+        <span class="trip-season season-summer">6月 ☀️</span>
+      </div>
+      <div class="trip-reason">梅雨の室内スポット。恐竜博物館は子ども大興奮</div>
+      <div class="trip-highlights">🍃 福井県立恐竜博物館・芝政ワールド</div>
+      <div class="trip-transport">🚗 車で約1.5時間 / 日帰り〜1泊</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 3: 2027 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--sky);">2027</div>
+    <div>
+      <div class="year-title">Year 3 — 中部・北陸デビュー</div>
+      <div class="year-age">けいすけ 2〜3歳 ／ おしゃべり＆元気いっぱい</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    🚂 2歳を過ぎると新幹線も楽しめるように。膝上乗車は無料なのでコスパ◎。中部〜北陸方面に範囲拡大！
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑨ 愛知県</span>
+        <span class="trip-season season-winter">1月中旬 ❄️</span>
+      </div>
+      <div class="trip-reason">年間最安時期。名古屋は子連れスポットが豊富</div>
+      <div class="trip-highlights">🍃 名古屋港水族館・レゴランド・東山動物園</div>
+      <div class="trip-transport">🚄 新幹線で約40分 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑩ 岐阜県</span>
+        <span class="trip-season season-spring">5月 🌿</span>
+      </div>
+      <div class="trip-reason">GW後の新緑シーズン。自然の中でのびのび</div>
+      <div class="trip-highlights">🍃 牧歌の里・ひるがの高原（動物ふれあい）</div>
+      <div class="trip-transport">🚗 車で約1.5時間 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑪ 石川県</span>
+        <span class="trip-season season-autumn">11月上旬 🍂</span>
+      </div>
+      <div class="trip-reason">紅葉の兼六園は11月上旬なら混雑前。蟹シーズン開始！</div>
+      <div class="trip-highlights">🍃 兼六園・近江町市場・のとじま水族館</div>
+      <div class="trip-transport">🚗 車で約2.5時間 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑫ 富山県</span>
+        <span class="trip-season season-spring">4月 🌸</span>
+      </div>
+      <div class="trip-reason">春の立山連峰は圧巻。石川とセットで回ると◎</div>
+      <div class="trip-highlights">🍃 富山市ファミリーパーク・富岩運河環水公園</div>
+      <div class="trip-transport">🚗 石川から車で約1時間 / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑬ 静岡県</span>
+        <span class="trip-season season-winter">2月 ❄️</span>
+      </div>
+      <div class="trip-reason">閑散期で安い＆冬でも比較的温暖。富士山が綺麗に見える季節</div>
+      <div class="trip-highlights">🍃 富士サファリパーク・御殿場</div>
+      <div class="trip-transport">🚄 新幹線で約2時間 / 1泊2日</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 4: 2028 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--sunset);">2028</div>
+    <div>
+      <div class="year-title">Year 4 — 四国＆中国はじめまして</div>
+      <div class="year-age">けいすけ 3〜4歳 ／ 幼稚園前の自由旅</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    🌈 幼稚園入園前のラストイヤー！平日旅行し放題の最後のチャンス。このタイミングで四国・中国地方を攻める。
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑭ 岡山県</span>
+        <span class="trip-season season-winter">1月中旬 ❄️</span>
+      </div>
+      <div class="trip-reason">最安期。岡山は晴れの国で冬でも天気が安定</div>
+      <div class="trip-highlights">🍃 池田動物園・おもちゃ王国・倉敷美観地区</div>
+      <div class="trip-transport">🚄 新幹線で約1.5時間 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑮ 香川県</span>
+        <span class="trip-season season-winter">1月（岡山とセット）❄️</span>
+      </div>
+      <div class="trip-reason">岡山からマリンライナーで1時間。うどん県デビュー！</div>
+      <div class="trip-highlights">🍃 NEWレオマワールド・讃岐うどん巡り</div>
+      <div class="trip-transport">🚃 岡山から約1時間 / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑯ 徳島県</span>
+        <span class="trip-season season-spring">5月 🌿</span>
+      </div>
+      <div class="trip-reason">GW後の閑散期。鳴門の渦潮は子どもが大興奮</div>
+      <div class="trip-highlights">🍃 渦潮観潮船・あすたむらんど徳島</div>
+      <div class="trip-transport">🚗 車で約3時間 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑰ 広島県</span>
+        <span class="trip-season season-spring">4月上旬 🌸</span>
+      </div>
+      <div class="trip-reason">桜シーズンだけど平日なら宮島もまだ余裕あり</div>
+      <div class="trip-highlights">🍃 宮島・広島市安佐動物公園</div>
+      <div class="trip-transport">🚄 新幹線で約2時間 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑱ 愛媛県</span>
+        <span class="trip-season season-autumn">11月 🍂</span>
+      </div>
+      <div class="trip-reason">秋の閑散期。道後温泉は子連れにも優しい</div>
+      <div class="trip-highlights">🍃 道後温泉・とべ動物園・みかん狩り</div>
+      <div class="trip-transport">✈️ 関空からPeachで約1時間 / 1泊2日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑲ 高知県</span>
+        <span class="trip-season season-summer">6月 ☀️</span>
+      </div>
+      <div class="trip-reason">梅雨でも室戸・足摺は晴れ間あり。平日ガラガラ</div>
+      <div class="trip-highlights">🍃 桂浜水族館・のいち動物公園</div>
+      <div class="trip-transport">✈️ 関空からLCC / 1泊2日</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 5: 2029 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--spring);">2029</div>
+    <div>
+      <div class="year-title">Year 5 — 関東デビュー！</div>
+      <div class="year-age">けいすけ 4〜5歳 ／ 幼稚園年中・体力UP</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    🎒 体力がついて長距離移動もOKに。飛行機デビューも楽しめる年齢。関東圏を中心に攻略！ただし幼稚園があるので長期休みを活用。
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">⑳ 東京都</span>
+        <span class="trip-season season-winter">1月中旬 ❄️</span>
+      </div>
+      <div class="trip-reason">冬休み明け最安期。上野動物園・キッザニアは子どもの聖地</div>
+      <div class="trip-highlights">🍃 上野動物園・キッザニア・東京タワー</div>
+      <div class="trip-transport">🚄 新幹線で約2.5時間 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉑ 神奈川県</span>
+        <span class="trip-season season-winter">1月（東京とセット）❄️</span>
+      </div>
+      <div class="trip-reason">東京とセットで。冬の江ノ島は空いてて最高</div>
+      <div class="trip-highlights">🍃 新江ノ島水族館・鎌倉散策・カップヌードルミュージアム</div>
+      <div class="trip-transport">🚃 東京から約1時間 / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉒ 千葉県</span>
+        <span class="trip-season season-spring">春休み前の3月中旬 🌸</span>
+      </div>
+      <div class="trip-reason">春休み直前の平日はディズニーも比較的空き。マザー牧場も◎</div>
+      <div class="trip-highlights">🍃 東京ディズニーランド・マザー牧場</div>
+      <div class="trip-transport">🚄 新幹線＋電車 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉓ 埼玉県</span>
+        <span class="trip-season season-autumn">11月 🍂</span>
+      </div>
+      <div class="trip-reason">秋の閑散期。鉄道博物館は男の子に大人気</div>
+      <div class="trip-highlights">🍃 鉄道博物館・ムーミンバレーパーク</div>
+      <div class="trip-transport">🚄 東京経由 / 関東セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉔ 山梨県</span>
+        <span class="trip-season season-autumn">11月（埼玉とセット）🍂</span>
+      </div>
+      <div class="trip-reason">秋の富士山は最高。ほうとうも子どもに人気</div>
+      <div class="trip-highlights">🍃 富士急ハイランド（キッズエリア）・河口湖</div>
+      <div class="trip-transport">🚗 埼玉から車で約2時間 / セット旅行</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 6: 2030 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--summer);">2030</div>
+    <div>
+      <div class="year-title">Year 6 — 九州上陸！</div>
+      <div class="year-age">けいすけ 5〜6歳 ／ 年長さん・何でも楽しめる</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    ✈️ 飛行機にも慣れてきた頃。関空からPeach・ジェットスターで九州へ！幼稚園最後の年、平日旅行ラストチャンスを活かす。
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉕ 福岡県</span>
+        <span class="trip-season season-winter">2月 ❄️</span>
+      </div>
+      <div class="trip-reason">冬の閑散期×LCCセールで最安。ラーメン・屋台は子どもも大好き</div>
+      <div class="trip-highlights">🍃 福岡市動物園・マリンワールド海の中道・屋台</div>
+      <div class="trip-transport">✈️ 関空からPeach約1.5時間 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉖ 佐賀県</span>
+        <span class="trip-season season-winter">2月（福岡とセット）❄️</span>
+      </div>
+      <div class="trip-reason">福岡から電車40分。有田焼の絵付け体験は5歳なら楽しめる</div>
+      <div class="trip-highlights">🍃 吉野ヶ里遺跡・有田焼体験・嬉野温泉</div>
+      <div class="trip-transport">🚃 福岡から約40分 / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉗ 大分県</span>
+        <span class="trip-season season-spring">5月 🌿</span>
+      </div>
+      <div class="trip-reason">GW後の温泉天国。砂湯は子どもが大はしゃぎ</div>
+      <div class="trip-highlights">🍃 別府地獄めぐり・うみたまご水族館・砂湯</div>
+      <div class="trip-transport">✈️ 関空からLCC / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉘ 熊本県</span>
+        <span class="trip-season season-summer">6月 ☀️</span>
+      </div>
+      <div class="trip-reason">梅雨だけど室内スポットも充実。くまモンに会える！</div>
+      <div class="trip-highlights">🍃 熊本城・阿蘇ファームランド・くまモンスクエア</div>
+      <div class="trip-transport">✈️ 関空からLCC / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉙ 長崎県</span>
+        <span class="trip-season season-autumn">11月 🍂</span>
+      </div>
+      <div class="trip-reason">秋の閑散期。ハウステンボスのイルミネーションが始まる頃</div>
+      <div class="trip-highlights">🍃 ハウステンボス・長崎ペンギン水族館</div>
+      <div class="trip-transport">✈️ 関空からLCC / 2泊3日</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 7: 2031 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--autumn);">2031</div>
+    <div>
+      <div class="year-title">Year 7 — 北海道＆東北への冒険</div>
+      <div class="year-age">けいすけ 6〜7歳 ／ 小学1年生・世界が広がる</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    🎒 小学校入学！夏休み・冬休み・春休みをフル活用。体力も知的好奇心もMAXの年齢。北海道＆東北の大自然へ！
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉚ 北海道</span>
+        <span class="trip-season season-summer">夏休み（7月下旬）☀️</span>
+      </div>
+      <div class="trip-reason">夏の北海道は梅雨なし＆涼しい。ハイシーズンだけど早割で対策</div>
+      <div class="trip-highlights">🍃 旭山動物園・富良野ラベンダー・小樽運河</div>
+      <div class="trip-transport">✈️ 関空から約2時間 / 3泊4日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉛ 宮城県</span>
+        <span class="trip-season season-winter">冬休み（1月上旬）❄️</span>
+      </div>
+      <div class="trip-reason">冬休み後半は安くなり始める。仙台は新幹線で行きやすい</div>
+      <div class="trip-highlights">🍃 仙台うみの杜水族館・松島遊覧船・牛タン</div>
+      <div class="trip-transport">🚄 東京経由新幹線 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉜ 山形県</span>
+        <span class="trip-season season-winter">1月（宮城とセット）❄️</span>
+      </div>
+      <div class="trip-reason">蔵王の樹氷は冬だけの絶景。雪遊びデビューに最適</div>
+      <div class="trip-highlights">🍃 蔵王樹氷・銀山温泉・さくらんぼ</div>
+      <div class="trip-transport">🚃 仙台から約1時間 / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉝ 新潟県</span>
+        <span class="trip-season season-spring">春休み（3月下旬）🌸</span>
+      </div>
+      <div class="trip-reason">春休み初め。お米の国でご飯の美味しさを学ぶ</div>
+      <div class="trip-highlights">🍃 マリンピア日本海・弥彦山・へぎそば</div>
+      <div class="trip-transport">🚄 東京経由新幹線 / 2泊3日</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 8: 2032 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--sky);">2032</div>
+    <div>
+      <div class="year-title">Year 8 — 東北＆北関東制覇</div>
+      <div class="year-age">けいすけ 7〜8歳 ／ 小2・歴史や自然に興味</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    📚 学校で地理や歴史を学び始める時期。「教科書で見た場所」に行く感動を。東北の残りと北関東を攻略！
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉞ 青森県</span>
+        <span class="trip-season season-summer">夏休み（8月上旬）☀️</span>
+      </div>
+      <div class="trip-reason">ねぶた祭り（8/2〜7）に合わせて。一生の思い出に</div>
+      <div class="trip-highlights">🍃 ねぶた祭り・奥入瀬渓流・りんご</div>
+      <div class="trip-transport">✈️ 関空から約1.5時間 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㉟ 秋田県</span>
+        <span class="trip-season season-summer">夏休み（青森とセット）☀️</span>
+      </div>
+      <div class="trip-reason">青森からレンタカーで南下。なまはげは怖いけど楽しい</div>
+      <div class="trip-highlights">🍃 なまはげ館・田沢湖・きりたんぽ</div>
+      <div class="trip-transport">🚗 青森からレンタカー / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊱ 岩手県</span>
+        <span class="trip-season season-summer">夏休み（東北セット）☀️</span>
+      </div>
+      <div class="trip-reason">わんこそばチャレンジは小学生にぴったり</div>
+      <div class="trip-highlights">🍃 中尊寺金色堂・わんこそば・小岩井農場</div>
+      <div class="trip-transport">🚗 秋田から車で約2時間 / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊲ 栃木県</span>
+        <span class="trip-season season-winter">冬休み（1月）❄️</span>
+      </div>
+      <div class="trip-reason">冬の閑散期。日光東照宮は歴史の勉強にも</div>
+      <div class="trip-highlights">🍃 日光東照宮・那須どうぶつ王国・いちご狩り</div>
+      <div class="trip-transport">🚄 東京経由新幹線 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊳ 群馬県</span>
+        <span class="trip-season season-winter">1月（栃木とセット）❄️</span>
+      </div>
+      <div class="trip-reason">草津温泉の湯畑は冬が一番雰囲気ある</div>
+      <div class="trip-highlights">🍃 草津温泉・こんにゃくパーク・群馬サファリパーク</div>
+      <div class="trip-transport">🚗 栃木からレンタカー / セット旅行</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 9: 2033 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: var(--leaf);">2033</div>
+    <div>
+      <div class="year-title">Year 9 — 九州南部＆中国制覇</div>
+      <div class="year-age">けいすけ 8〜9歳 ／ 小3・自分で調べて楽しめる</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    🌋 自然科学への興味が深まる時期。火山・海・山など雄大な自然を体験。九州南部と中国地方の残りを攻略！
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊴ 鹿児島県</span>
+        <span class="trip-season season-winter">2月 ❄️</span>
+      </div>
+      <div class="trip-reason">冬の閑散期×LCC。桜島の噴煙は理科の教材にも</div>
+      <div class="trip-highlights">🍃 桜島・いおワールド水族館・黒豚</div>
+      <div class="trip-transport">✈️ 関空からLCC / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊵ 宮崎県</span>
+        <span class="trip-season season-winter">2月（鹿児島とセット）❄️</span>
+      </div>
+      <div class="trip-reason">冬でも温暖。青島のジャングルは南国気分</div>
+      <div class="trip-highlights">🍃 青島・高千穂峡・チキン南蛮</div>
+      <div class="trip-transport">🚗 鹿児島からレンタカー / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊶ 山口県</span>
+        <span class="trip-season season-spring">春休み（3月下旬）🌸</span>
+      </div>
+      <div class="trip-reason">秋芳洞の鍾乳洞は大冒険感覚。理科好きな子に◎</div>
+      <div class="trip-highlights">🍃 秋芳洞・角島大橋・下関ふぐ</div>
+      <div class="trip-transport">🚄 新幹線で約2.5時間 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊷ 島根県</span>
+        <span class="trip-season season-autumn">11月 🍂</span>
+      </div>
+      <div class="trip-reason">出雲大社は秋が穴場。神在月（旧暦10月）は島根だけ「神在月」</div>
+      <div class="trip-highlights">🍃 出雲大社・足立美術館・出雲そば</div>
+      <div class="trip-transport">🚗 車で約4時間 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊸ 鳥取県</span>
+        <span class="trip-season season-autumn">11月（島根とセット）🍂</span>
+      </div>
+      <div class="trip-reason">鳥取砂丘は秋が快適。島根とセットで山陰制覇</div>
+      <div class="trip-highlights">🍃 鳥取砂丘・砂の美術館・コナンの里</div>
+      <div class="trip-transport">🚗 島根から車で約2時間 / セット旅行</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Year 10: 2034 -->
+<div class="year-section">
+  <div class="year-header">
+    <div class="year-badge" style="background: linear-gradient(135deg, var(--sunset), var(--sakura));">2034</div>
+    <div>
+      <div class="year-title">Year 10 — グランドフィナーレ！</div>
+      <div class="year-age">けいすけ 9〜10歳 ／ 小4・達成の年！</div>
+    </div>
+  </div>
+  <div class="year-concept">
+    🏆 ついに最終年！残りの県を制覇して47都道府県コンプリート。沖縄をラストに持ってきて、最高のフィナーレを！
+  </div>
+  <div class="trip-cards">
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊹ 長野県</span>
+        <span class="trip-season season-summer">夏休み（7月下旬）☀️</span>
+      </div>
+      <div class="trip-reason">夏の高原は避暑地。自然体験が充実</div>
+      <div class="trip-highlights">🍃 上高地・善光寺・軽井沢</div>
+      <div class="trip-transport">🚄 名古屋経由特急 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊺ 茨城県</span>
+        <span class="trip-season season-spring">春休み 🌸</span>
+      </div>
+      <div class="trip-reason">国営ひたち海浜公園のネモフィラは4月が見頃</div>
+      <div class="trip-highlights">🍃 ひたち海浜公園・筑波宇宙センター（JAXA）</div>
+      <div class="trip-transport">🚄 東京経由 / 2泊3日</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊻ 福島県</span>
+        <span class="trip-season season-spring">春休み（茨城とセット）🌸</span>
+      </div>
+      <div class="trip-reason">鶴ヶ城の桜は4月中旬。歴史学習にも</div>
+      <div class="trip-highlights">🍃 鶴ヶ城・アクアマリンふくしま・喜多方ラーメン</div>
+      <div class="trip-transport">🚄 東京経由新幹線 / セット旅行</div>
+    </div>
+    <div class="trip-card">
+      <div class="trip-card-header">
+        <span class="trip-pref">㊼ 沖縄県 🎊</span>
+        <span class="trip-season season-winter">1月下旬〜2月 ❄️</span>
+      </div>
+      <div class="trip-reason">🏆 グランドフィナーレ！冬の沖縄は安い＆温暖。最高のご褒美旅行！47都道府県達成おめでとう！</div>
+      <div class="trip-highlights">🍃 美ら海水族館・首里城・ビーチ・シュノーケリング</div>
+      <div class="trip-transport">✈️ 関空からLCC約2時間 / 3泊4日</div>
+    </div>
+  </div>
+</div>
+<div class="divider"></div>
+
+<!-- Tips -->
+<div class="tips-section">
+  <div class="tips-box">
+    <h3>💡 10年間の旅をお得にするコツ</h3>
+    <ul>
+      <li>Peach・ジェットスターのメルマガ登録で閑散期セールを見逃さない</li>
+      <li>2歳までは飛行機・新幹線が膝上無料。Year 1〜3で遠方を組み込むのも手</li>
+      <li>小学生になったら長期休みメインに切り替え。休み始め・終わりが狙い目</li>
+      <li>セット旅行（隣接県をまとめて回る）で交通費を節約</li>
+      <li>各都道府県の旅行支援・クーポンは出発前に必ずチェック</li>
+      <li>旅のスタンプ帳やフォトブックを作ると、けいすけくんの思い出にもなる！</li>
+      <li>ふるさと納税で旅行先の返礼品（宿泊券など）を活用するのも◎</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <h2>🗾 47都道府県、親子で制覇しよう！</h2>
+  <p>けいすけくんが0歳から10歳になるまでの10年間。<br>きっと一生の宝物になる旅の記録になるはず。</p>
+  <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">※ 時期や順番はけいすけくんの体調・興味に合わせて柔軟に変更してね！</p>
+</div>
+
+</body>
+</html>
