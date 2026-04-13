@@ -1516,10 +1516,12 @@ function ensureYearPlans(year) {
       { pref: '', month: '', spots: ['', '', ''] },
       { pref: '', month: '', spots: ['', '', ''] },
       { pref: '', month: '', spots: ['', '', ''] },
+      { pref: '', month: '', spots: ['', '', ''] },
+      { pref: '', month: '', spots: ['', '', ''] },
     ];
   }
-  // Ensure 3 trips
-  while (tripPlans[year].length < 3) {
+  // Ensure 5 trips
+  while (tripPlans[year].length < 5) {
     tripPlans[year].push({ pref: '', month: '', spots: ['', '', ''] });
   }
   // Ensure each trip has 3 spots
@@ -1573,7 +1575,7 @@ function renderPlanView() {
 function renderTripForm(year, idx, trip) {
   const isFilled = trip.pref ? 'plan-trip-filled' : '';
   const tripNum = idx + 1;
-  const emoji = ['🚗', '✈️', '🚄'][idx];
+  const emoji = ['🚗', '✈️', '🚄', '🚢', '🏕'][idx];
 
   const prefOptions = `<option value="">都道府県</option>` +
     ALL_PREFS.map(p => `<option value="${p}" ${trip.pref === p ? 'selected' : ''}>${p}</option>`).join('');
