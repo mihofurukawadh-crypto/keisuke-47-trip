@@ -1510,10 +1510,23 @@ function switchNav(view) {
 // ===== Plan View =====
 let tripPlans = {}; // { "2027": [ {pref:"",month:"",spots:["","",""]}, ... ] }
 
+const DEFAULT_MONTHS = ['5', '6', '11', '1', '2'];
+
 function loadTripPlans() {
   try {
     const saved = localStorage.getItem('keisuke47_tripplans');
-    if (saved) tripPlans = JSON.parse(saved);
+    if (saved) {
+      tripPlans = JSON.parse(saved);
+      // 月が全部空の年にデフォルト月を適用
+      Object.keys(tripPlans).forEach(year => {
+        const trips = tripPlans[year];
+        const allMonthsEmpty = trips.every(t => !t.month);
+        if (allMonthsEmpty) {
+          trips.forEach((t, i) => { t.month = DEFAULT_MONTHS[i] || ''; });
+        }
+      });
+      saveTripPlans();
+    }
   } catch(e) {}
 }
 
