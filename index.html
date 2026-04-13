@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>けいすけの47都道府県たび</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #FF6B9D;
+      --pink-light: #FFB8D0;
+      --orange: #FF9A56;
+      --yellow: #FFD93D;
+      --green: #6BCB77;
+      --blue: #4D96FF;
+      --purple: #9B72CF;
+      --bg: #FFF8F0;
+      --card: #FFFFFF;
+      --text: #4A3728;
+      --text-light: #8B7355;
+      --visited: #6BCB77;
+      --visited-light: #D4F5D4;
+      --unvisited: #E8E0D8;
+      --unvisited-hover: #DDD4CA;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding-bottom: 80px;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      background: linear-gradient(135deg, var(--pink), var(--orange));
+      color: white;
+      padding: 20px 16px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      right: 0;
+      height: 24px;
+      background: var(--bg);
+      border-radius: 50% 50% 0 0;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .header h1 .emoji {
+      font-size: 24px;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    /* ===== Progress Section ===== */
+    .progress-section {
+      padding: 0 16px;
+      margin-top: -8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      text-align: center;
+    }
+
+    .progress-number {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--pink);
+      line-height: 1;
+    }
+
+    .progress-number span {
+      font-size: 20px;
+      color: var(--text-light);
+      font-weight: 700;
+    }
+
+    .progress-label {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    .progress-bar-wrap {
+      margin-top: 12px;
+      background: #F0E8E0;
+      border-radius: 10px;
+      height: 14px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--yellow), var(--green));
+      transition: width 0.6s ease;
+      min-width: 4px;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .progress-stats .age {
+      background: var(--pink-light);
+      color: var(--pink);
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    /* ===== Tab Navigation ===== */
+    .tab-nav {
+      display: flex;
+      gap: 0;
+      padding: 16px 16px 0;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: var(--unvisited);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:first-child { border-radius: 12px 0 0 12px; }
+    .tab-btn:last-child { border-radius: 0 12px 12px 0; }
+
+    .tab-btn.active {
+      background: var(--pink);
+      color: white;
+    }
+
+    /* ===== Map Grid ===== */
+    .map-container {
+      padding: 16px;
+    }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      gap: 2px;
+      max-width: 400px;
+      margin: 0 auto;
+      aspect-ratio: 11 / 15;
+    }
+
+    .pref-cell {
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--unvisited);
+      color: var(--text-light);
+      line-height: 1.1;
+      text-align: center;
+      padding: 1px;
+      position: relative;
+    }
+
+    .pref-cell.visited {
+      background: var(--visited);
+      color: white;
+    }
+
+    .pref-cell:active {
+      transform: scale(0.92);
+    }
+
+    @media (min-width: 400px) {
+      .pref-cell { font-size: 10px; }
+    }
+
+    /* ===== Region List ===== */
+    .region-list {
+      padding: 0 16px 16px;
+    }
+
+    .region-group {
+      margin-bottom: 16px;
+    }
+
+    .region-title {
+      font-size: 14px;
+      font-weight: 900;
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .region-title .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .region-prefs {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 8px;
+    }
+
+    .pref-chip {
+      background: var(--card);
+      border: 2px solid var(--unvisited);
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pref-chip.visited {
+      background: var(--visited-light);
+      border-color: var(--visited);
+      color: var(--visited);
+    }
+
+    .pref-chip:active {
+      transform: scale(0.95);
+    }
+
+    .pref-chip .check {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* ===== Modal ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 24px 24px 16px 16px;
+      width: 100%;
+      max-width: 440px;
+      max-height: 85dvh;
+      overflow-y: auto;
+      padding: 0;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-handle {
+      width: 40px;
+      height: 4px;
+      background: #DDD;
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+
+    .modal-header {
+      padding: 16px 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .modal-header .region-badge {
+      font-size: 11px;
+      background: var(--pink-light);
+      color: var(--pink);
+      padding: 3px 10px;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: #F0E8E0;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-body {
+      padding: 16px 20px 24px;
+    }
+
+    .modal-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .modal-status.unvisited-status {
+      background: #FFF3E0;
+      color: var(--orange);
+    }
+
+    .modal-status.visited-status {
+      background: var(--visited-light);
+      color: var(--visited);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #E8E0D8;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--pink);
+    }
+
+    .form-group textarea {
+      height: 80px;
+      resize: vertical;
+    }
+
+    .photo-upload {
+      border: 2px dashed #E8E0D8;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      color: var(--text-light);
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .photo-upload:hover {
+      border-color: var(--pink);
+      background: #FFF5F8;
+    }
+
+    .photo-upload .icon {
+      font-size: 28px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .photo-preview {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .photo-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 8px;
+      object-fit: cover;
+      position: relative;
+    }
+
+    .photo-thumb-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .photo-thumb-wrap .remove-photo {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--pink);
+      color: white;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), var(--orange));
+      color: white;
+    }
+
+    .btn-visited {
+      background: linear-gradient(135deg, var(--green), #4CAF50);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #F0E8E0;
+      color: var(--text-light);
+    }
+
+    .btn-danger {
+      background: #FFE0E0;
+      color: #E74C3C;
+    }
+
+    /* ===== Bottom Nav ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      padding: 8px 16px;
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+      box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
+      z-index: 50;
+    }
+
+    .nav-btn {
+      flex: 1;
+      max-width: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-light);
+      cursor: pointer;
+    }
+
+    .nav-btn .nav-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .nav-btn.active {
+      color: var(--pink);
+    }
+
+    /* ===== View Toggle ===== */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ===== Confetti ===== */
+    .confetti-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confettiFall 1.5s ease forwards;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ===== Empty State ===== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-light);
+    }
+
+    .empty-state .emoji {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+
+    /* ===== Claude Info Section ===== */
+    .claude-section {
+      margin-top: 16px;
+      border-top: 2px dashed #E8E0D8;
+      padding-top: 14px;
+    }
+
+    .claude-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .claude-section-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--purple);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .claude-toggle {
+      font-size: 12px;
+      color: var(--text-light);
+      font-weight: 700;
+    }
+
+    .claude-info-body {
+      display: none;
+    }
+
+    .claude-info-body.open {
+      display: block;
+    }
+
+    .claude-info-card {
+      background: #F8F0FF;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .claude-info-card h4 {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--purple);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .claude-info-card p,
+    .claude-info-card ul {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .claude-info-card ul {
+      padding-left: 16px;
+    }
+
+    .claude-info-card li {
+      margin-bottom: 2px;
+    }
+
+    .claude-import-area {
+      margin-top: 10px;
+    }
+
+    .claude-import-area textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px 12px;
+      border: 2px solid #D8C8F0;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--text);
+      background: #FDFAFF;
+      resize: vertical;
+    }
+
+    .claude-import-area textarea:focus {
+      outline: none;
+      border-color: var(--purple);
+    }
+
+    .claude-import-area textarea::placeholder {
+      color: #C0A8D8;
+    }
+
+    .claude-btn-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .btn-claude {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-claude:active { transform: scale(0.95); }
+
+    .btn-claude-primary {
+      background: linear-gradient(135deg, #9B72CF, #6B4CE6);
+      color: white;
+    }
+
+    .btn-claude-secondary {
+      background: #F0E8FF;
+      color: var(--purple);
+    }
+
+    .btn-claude-copy {
+      background: #E8F5E9;
+      color: #388E3C;
+    }
+
+    .import-success {
+      background: var(--visited-light);
+      color: var(--visited);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .import-success.show {
+      display: block;
+      animation: slideUp 0.3s ease;
+    }
+
+    /* ===== Responsive ===== */
+    @media (min-width: 600px) {
+      .header h1 { font-size: 24px; }
+      .progress-number { font-size: 56px; }
+      .map-grid { gap: 3px; }
+      .pref-cell { font-size: 11px; border-radius: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h1><span class="emoji">✈️</span> けいすけの47都道府県たび</h1>
+    <div class="header-sub">2026年10月〜2036年10月 ぜんぶ制覇するぞ！</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <div class="progress-card">
+      <div class="progress-number" id="visitedCount">0<span> / 47</span></div>
+      <div class="progress-label">都道府県せいは！</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+      </div>
+      <div class="progress-stats">
+        <span id="remainInfo">あと47県！がんばろう！</span>
+        <span class="age" id="ageDisplay">いま 1さい</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('map')">マップ</button>
+    <button class="tab-btn" onclick="switchTab('list')">リスト</button>
+  </div>
+
+  <!-- Map View -->
+  <div class="view active" id="view-map">
+    <div class="map-container">
+      <div class="map-grid" id="mapGrid"></div>
+    </div>
+  </div>
+
+  <!-- List View -->
+  <div class="view" id="view-list">
+    <div class="region-list" id="regionList"></div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">東京都</h2>
+          <span class="region-badge" id="modalRegion">関東</span>
+        </div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-status" id="modalStatus"></div>
+
+        <div class="form-group">
+          <label>宿泊日</label>
+          <input type="date" id="inputDate">
+        </div>
+
+        <div class="form-group">
+          <label>宿泊先</label>
+          <input type="text" id="inputHotel" placeholder="ホテル名・旅館名">
+        </div>
+
+        <div class="form-group">
+          <label>メモ</label>
+          <textarea id="inputMemo" placeholder="思い出やコメントを書こう！"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>写真</label>
+          <div class="photo-upload" id="photoUpload" onclick="document.getElementById('photoInput').click()">
+            <span class="icon">📷</span>
+            タップして写真を追加
+          </div>
+          <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(event)">
+          <div class="photo-preview" id="photoPreview"></div>
+        </div>
+
+        <!-- Claude Info Section -->
+        <div class="claude-section">
+          <div class="claude-section-header" onclick="toggleClaudeInfo()">
+            <div class="claude-section-title">🤖 クロちゃん情報</div>
+            <span class="claude-toggle" id="claudeToggle">▼ ひらく</span>
+          </div>
+          <div class="claude-info-body" id="claudeInfoBody">
+            <!-- Saved info display -->
+            <div id="claudeSavedInfo"></div>
+
+            <!-- Import area -->
+            <div class="claude-import-area">
+              <div class="claude-btn-row" style="margin-bottom:8px">
+                <button class="btn-claude btn-claude-copy" onclick="copyPrompt()">📋 質問をコピー</button>
+                <button class="btn-claude btn-claude-secondary" onclick="clearClaudeInfo()">🗑 クリア</button>
+              </div>
+              <textarea id="claudeImportText" placeholder="クロちゃんの回答をここに貼り付けてね！&#10;&#10;（「質問をコピー」→ Claudeに貼り付け → 回答をコピー → ここに貼り付け → 取り込み）"></textarea>
+              <div class="claude-btn-row">
+                <button class="btn-claude btn-claude-primary" onclick="importClaudeInfo()">✨ 取り込む</button>
+              </div>
+              <div class="import-success" id="importSuccess">✅ 取り込み完了！</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row" id="btnRow"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti Container -->
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="switchNav('home')">
+      <span class="nav-icon">🏠</span>
+      ホーム
+    </button>
+    <button class="nav-btn" onclick="switchNav('stats')">
+      <span class="nav-icon">📊</span>
+      きろく
+    </button>
+  </div>
+
+<script>
+// ===== Data =====
+const BIRTHDAY = new Date(2024, 9, 2); // 2024年10月2日
+
+const REGIONS = [
+  { name: '北海道', color: '#4D96FF', prefs: ['北海道'] },
+  { name: '東北', color: '#9B72CF', prefs: ['青森','岩手','宮城','秋田','山形','福島'] },
+  { name: '関東', color: '#FF6B9D', prefs: ['茨城','栃木','群馬','埼玉','千葉','東京','神奈川'] },
+  { name: '中部', color: '#FF9A56', prefs: ['新潟','富山','石川','福井','山梨','長野','岐阜','静岡','愛知'] },
+  { name: '近畿', color: '#FFD93D', prefs: ['三重','滋賀','京都','大阪','兵庫','奈良','和歌山'] },
+  { name: '中国', color: '#6BCB77', prefs: ['鳥取','島根','岡山','広島','山口'] },
+  { name: '四国', color: '#00C9A7', prefs: ['徳島','香川','愛媛','高知'] },
+  { name: '九州・沖縄', color: '#FF6B6B', prefs: ['福岡','佐賀','長崎','熊本','大分','宮崎','鹿児島','沖縄'] },
+];
+
+// Grid positions for map [row, col] in an 11-col x 15-row grid
+const GRID_POS = {
+  '北海道': [0, 9],
+  '青森': [2, 8],
+  '岩手': [3, 9],
+  '秋田': [3, 8],
+  '宮城': [4, 9],
+  '山形': [4, 8],
+  '福島': [5, 8],
+  '新潟': [5, 7],
+  '茨城': [6, 9],
+  '栃木': [6, 8],
+  '群馬': [6, 7],
+  '富山': [6, 5],
+  '石川': [7, 4],
+  '福井': [8, 4],
+  '長野': [7, 6],
+  '山梨': [8, 7],
+  '埼玉': [7, 8],
+  '千葉': [8, 9],
+  '東京': [8, 8],
+  '神奈川': [9, 8],
+  '岐阜': [8, 5],
+  '静岡': [9, 7],
+  '愛知': [9, 6],
+  '三重': [10, 6],
+  '滋賀': [8, 5],
+  '京都': [8, 4],
+  '大阪': [9, 5],
+  '兵庫': [9, 4],
+  '奈良': [10, 5],
+  '和歌山': [11, 5],
+  '鳥取': [8, 3],
+  '島根': [8, 2],
+  '岡山': [9, 3],
+  '広島': [9, 2],
+  '山口': [9, 1],
+  '徳島': [10, 4],
+  '香川': [10, 3],
+  '愛媛': [11, 2],
+  '高知': [11, 3],
+  '福岡': [10, 1],
+  '佐賀': [11, 0],
+  '長崎': [12, 0],
+  '熊本': [11, 1],
+  '大分': [10, 2],
+  '宮崎': [12, 2],
+  '鹿児島': [12, 1],
+  '沖縄': [14, 0],
+};
+
+// Fix overlapping positions
+// 滋賀 and 岐阜 overlap at [8,5] - move 滋賀
+GRID_POS['滋賀'] = [9, 5];
+// 大阪 and 滋賀 now overlap at [9,5] - adjust
+GRID_POS['滋賀'] = [8, 6];
+GRID_POS['京都'] = [8, 4];
+GRID_POS['大阪'] = [9, 5];
+GRID_POS['岐阜'] = [8, 5];
+
+// ===== State =====
+let records = {};
+let currentPref = null;
+let tempPhotos = [];
+
+// Load from localStorage
+function loadData() {
+  try {
+    const saved = localStorage.getItem('keisuke47_records');
+    if (saved) records = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function saveData() {
+  localStorage.setItem('keisuke47_records', JSON.stringify(records));
+}
+
+// ===== Age Calculation =====
+function getAge() {
+  const now = new Date();
+  let age = now.getFullYear() - BIRTHDAY.getFullYear();
+  const m = now.getMonth() - BIRTHDAY.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < BIRTHDAY.getDate())) age--;
+  return Math.max(0, age);
+}
+
+function getAgeAtDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  let age = d.getFullYear() - BIRTHDAY.getFullYear();
+  const m = d.getMonth() - BIRTHDAY.getMonth();
+  if (m < 0 || (m === 0 && d.getDate() < BIRTHDAY.getDate())) age--;
+  return Math.max(0, age);
+}
+
+// ===== Render Progress =====
+function updateProgress() {
+  const visited = Object.values(records).filter(r => r.visited).length;
+  const remain = 47 - visited;
+  const pct = Math.round((visited / 47) * 100);
+
+  document.getElementById('visitedCount').innerHTML = `${visited}<span> / 47</span>`;
+  document.getElementById('progressBar').style.width = `${pct}%`;
+
+  const age = getAge();
+  document.getElementById('ageDisplay').textContent = `いま ${age}さい`;
+
+  if (visited === 47) {
+    document.getElementById('remainInfo').textContent = '🎉 ぜんぶ制覇！すごい！';
+  } else if (visited === 0) {
+    document.getElementById('remainInfo').textContent = 'あと47県！がんばろう！';
+  } else {
+    document.getElementById('remainInfo').textContent = `あと${remain}県！${pct}%たっせい！`;
+  }
+}
+
+// ===== Render Map =====
+function renderMap() {
+  const grid = document.getElementById('mapGrid');
+  grid.innerHTML = '';
+
+  const allPrefs = REGIONS.flatMap(r => r.prefs);
+
+  allPrefs.forEach(name => {
+    const pos = GRID_POS[name];
+    if (!pos) return;
+
+    const cell = document.createElement('div');
+    cell.className = 'pref-cell' + (records[name]?.visited ? ' visited' : '');
+    cell.textContent = name === '北海道' ? '北海道' : name === '東京' ? '東京' : name === '京都' ? '京都' : name.replace(/[県府]$/,'');
+    cell.style.gridRow = pos[0] + 1;
+    cell.style.gridColumn = pos[1] + 1;
+    cell.onclick = () => openModal(name);
+    grid.appendChild(cell);
+  });
+}
+
+// ===== Render List =====
+function renderList() {
+  const list = document.getElementById('regionList');
+  list.innerHTML = '';
+
+  REGIONS.forEach(region => {
+    const group = document.createElement('div');
+    group.className = 'region-group';
+
+    const visitedInRegion = region.prefs.filter(p => records[p]?.visited).length;
+
+    group.innerHTML = `
+      <div class="region-title">
+        <span class="dot" style="background:${region.color}"></span>
+        ${region.name}
+        <span style="color:var(--text-light);font-size:12px;font-weight:400">${visitedInRegion}/${region.prefs.length}</span>
+      </div>
+      <div class="region-prefs">
+        ${region.prefs.map(p => {
+          const v = records[p]?.visited;
+          return `<div class="pref-chip${v ? ' visited' : ''}" onclick="openModal('${p}')">
+            <span class="check">${v ? '✅' : '⬜'}</span>
+            ${p}
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+    list.appendChild(group);
+  });
+}
+
+// ===== Modal =====
+function findRegion(prefName) {
+  for (const r of REGIONS) {
+    if (r.prefs.includes(prefName)) return r.name;
+  }
+  return '';
+}
+
+function openModal(prefName) {
+  currentPref = prefName;
+  const rec = records[prefName] || {};
+  tempPhotos = rec.photos ? [...rec.photos] : [];
+
+  document.getElementById('modalTitle').textContent = prefName;
+  document.getElementById('modalRegion').textContent = findRegion(prefName);
+
+  const visited = rec.visited;
+  const statusEl = document.getElementById('modalStatus');
+  if (visited) {
+    const ageAt = getAgeAtDate(rec.date);
+    const ageText = ageAt !== null ? `（${ageAt}さいのとき）` : '';
+    statusEl.className = 'modal-status visited-status';
+    statusEl.innerHTML = `✅ 訪問ずみ！${ageText}`;
+  } else {
+    statusEl.className = 'modal-status unvisited-status';
+    statusEl.innerHTML = '🗺️ まだ行ってないよ';
+  }
+
+  document.getElementById('inputDate').value = rec.date || '';
+  document.getElementById('inputHotel').value = rec.hotel || '';
+  document.getElementById('inputMemo').value = rec.memo || '';
+  renderPhotoPreview();
+
+  const btnRow = document.getElementById('btnRow');
+  if (visited) {
+    btnRow.innerHTML = `
+      <button class="btn btn-primary" onclick="savePref()">保存する</button>
+      <button class="btn btn-danger" onclick="unvisitPref()">取り消し</button>
+    `;
+  } else {
+    btnRow.innerHTML = `
+      <button class="btn btn-visited" onclick="markVisited()">泊まったよ！</button>
+      <button class="btn btn-secondary" onclick="savePref()">メモだけ保存</button>
+    `;
+  }
+
+  document.getElementById('modalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+  currentPref = null;
+  tempPhotos = [];
+}
+
+function getFormData() {
+  return {
+    date: document.getElementById('inputDate').value,
+    hotel: document.getElementById('inputHotel').value,
+    memo: document.getElementById('inputMemo').value,
+    photos: [...tempPhotos],
+  };
+}
+
+function markVisited() {
+  if (!currentPref) return;
+  const data = getFormData();
+  const wasVisited = records[currentPref]?.visited;
+  records[currentPref] = { ...data, visited: true };
+  saveData();
+  updateAll();
+  closeModal();
+  if (!wasVisited) showConfetti();
+}
+
+function savePref() {
+  if (!currentPref) return;
+  const data = getFormData();
+  const existing = records[currentPref] || {};
+  records[currentPref] = { ...existing, ...data };
+  saveData();
+  updateAll();
+  closeModal();
+}
+
+function unvisitPref() {
+  if (!currentPref) return;
+  if (confirm(`${currentPref}の訪問記録を取り消しますか？`)) {
+    records[currentPref] = { ...records[currentPref], visited: false };
+    saveData();
+    updateAll();
+    closeModal();
+  }
+}
+
+// ===== Photos =====
+function handlePhotos(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      // Resize image to save localStorage space
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 400;
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+        else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        tempPhotos.push(canvas.toDataURL('image/jpeg', 0.7));
+        renderPhotoPreview();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function renderPhotoPreview() {
+  const container = document.getElementById('photoPreview');
+  container.innerHTML = tempPhotos.map((src, i) => `
+    <div class="photo-thumb-wrap">
+      <img src="${src}" class="photo-thumb">
+      <button class="remove-photo" onclick="removePhoto(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function removePhoto(index) {
+  tempPhotos.splice(index, 1);
+  renderPhotoPreview();
+}
+
+// ===== Confetti =====
+function showConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#FF6B9D','#FFD93D','#6BCB77','#4D96FF','#FF9A56','#9B72CF'];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 0.5 + 's';
+    el.style.width = (Math.random() * 8 + 6) + 'px';
+    el.style.height = (Math.random() * 8 + 6) + 'px';
+    container.appendChild(el);
+  }
+  setTimeout(() => { container.innerHTML = ''; }, 2500);
+}
+
+// ===== Tabs =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (tab === 'map' && i === 0) || (tab === 'list' && i === 1));
+  });
+  document.getElementById('view-map').classList.toggle('active', tab === 'map');
+  document.getElementById('view-list').classList.toggle('active', tab === 'list');
+}
+
+// ===== Bottom Nav =====
+function switchNav(view) {
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', (view === 'home' && i === 0) || (view === 'stats' && i === 1));
+  });
+  if (view === 'stats') {
+    document.querySelector('.progress-section').scrollIntoView({ behavior: 'smooth' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// ===== Claude Info =====
+function toggleClaudeInfo() {
+  const body = document.getElementById('claudeInfoBody');
+  const toggle = document.getElementById('claudeToggle');
+  const isOpen = body.classList.toggle('open');
+  toggle.textContent = isOpen ? '▲ とじる' : '▼ ひらく';
+  if (isOpen) renderClaudeSavedInfo();
+}
+
+function getClaudePrompt(prefName) {
+  const age = getAge();
+  const region = findRegion(prefName);
+  return `${prefName}（${region}）への家族旅行について教えて！
+
+【条件】
+- 子ども：けいすけ（${age}さい）と一緒
+- 宿泊あり
+
+以下のフォーマットで回答してね：
+
+【おすすめスポット】
+- スポット1：説明
+- スポット2：説明
+- スポット3：説明
+
+【おすすめ宿泊先】
+- 宿1：特徴（1泊目安○○円〜）
+- 宿2：特徴（1泊目安○○円〜）
+
+【おすすめ時期】
+ベストシーズンとその理由
+
+【モデルプラン】
+1日目：○○
+2日目：○○
+
+【予算めやす】
+交通費・宿泊費・食費・観光費の目安
+
+【ブログ・YouTube映えポイント】
+撮影におすすめのスポットやタイミング`;
+}
+
+function copyPrompt() {
+  if (!currentPref) return;
+  const prompt = getClaudePrompt(currentPref);
+  navigator.clipboard.writeText(prompt).then(() => {
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = '✅ コピーした！';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  });
+}
+
+function importClaudeInfo() {
+  if (!currentPref) return;
+  const text = document.getElementById('claudeImportText').value.trim();
+  if (!text) return;
+
+  // Parse the Claude response into sections
+  const info = parseClaudeResponse(text);
+
+  // Save to records
+  if (!records[currentPref]) records[currentPref] = {};
+  records[currentPref].claudeInfo = info;
+  records[currentPref].claudeRaw = text;
+  saveData();
+
+  // Show success
+  const el = document.getElementById('importSuccess');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+
+  // Re-render saved info
+  renderClaudeSavedInfo();
+  document.getElementById('claudeImportText').value = '';
+}
+
+function parseClaudeResponse(text) {
+  const sections = {};
+  const patterns = [
+    { key: 'spots', label: 'おすすめスポット', regex: /【おすすめスポット】([\s\S]*?)(?=【|$)/ },
+    { key: 'hotels', label: 'おすすめ宿泊先', regex: /【おすすめ宿泊先】([\s\S]*?)(?=【|$)/ },
+    { key: 'season', label: 'おすすめ時期', regex: /【おすすめ時期】([\s\S]*?)(?=【|$)/ },
+    { key: 'plan', label: 'モデルプラン', regex: /【モデルプラン】([\s\S]*?)(?=【|$)/ },
+    { key: 'budget', label: '予算めやす', regex: /【予算めやす】([\s\S]*?)(?=【|$)/ },
+    { key: 'media', label: 'ブログ・YouTube映えポイント', regex: /【ブログ.*?ポイント】([\s\S]*?)(?=【|$)/ },
+  ];
+
+  patterns.forEach(p => {
+    const match = text.match(p.regex);
+    if (match) {
+      sections[p.key] = match[1].trim();
+    }
+  });
+
+  // If no sections matched, save entire text as general info
+  if (Object.keys(sections).length === 0) {
+    sections.general = text;
+  }
+
+  return sections;
+}
+
+function renderClaudeSavedInfo() {
+  const container = document.getElementById('claudeSavedInfo');
+  if (!currentPref || !records[currentPref]?.claudeInfo) {
+    container.innerHTML = '<p style="font-size:12px;color:var(--text-light);margin-bottom:10px">まだ情報がないよ。「質問をコピー」してクロちゃんに聞いてみよう！</p>';
+    return;
+  }
+
+  const info = records[currentPref].claudeInfo;
+  const icons = {
+    spots: '📍',
+    hotels: '🏨',
+    season: '🌸',
+    plan: '🗓',
+    budget: '💰',
+    media: '📸',
+    general: '📝',
+  };
+  const labels = {
+    spots: 'おすすめスポット',
+    hotels: 'おすすめ宿泊先',
+    season: 'おすすめ時期',
+    plan: 'モデルプラン',
+    budget: '予算めやす',
+    media: '映えポイント',
+    general: 'クロちゃん情報',
+  };
+
+  let html = '';
+  for (const [key, value] of Object.entries(info)) {
+    const lines = value.split('\n').filter(l => l.trim());
+    const isList = lines.every(l => l.trim().startsWith('-') || l.trim().match(/^\d/));
+
+    html += `<div class="claude-info-card">
+      <h4>${icons[key] || '📝'} ${labels[key] || key}</h4>
+      ${isList
+        ? `<ul>${lines.map(l => `<li>${l.replace(/^[-・]\s*/, '').replace(/^\d+[.、．]\s*/, '')}</li>`).join('')}</ul>`
+        : `<p>${lines.join('<br>')}</p>`
+      }
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function clearClaudeInfo() {
+  if (!currentPref) return;
+  if (!records[currentPref]?.claudeInfo) return;
+  if (confirm('クロちゃん情報をクリアしますか？')) {
+    delete records[currentPref].claudeInfo;
+    delete records[currentPref].claudeRaw;
+    saveData();
+    renderClaudeSavedInfo();
+  }
+}
+
+// ===== Update All =====
+function updateAll() {
+  updateProgress();
+  renderMap();
+  renderList();
+}
+
+// ===== Init =====
+loadData();
+updateAll();
+</script>
+</body>
+</html>
