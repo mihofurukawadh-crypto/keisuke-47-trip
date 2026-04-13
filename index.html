@@ -739,6 +739,195 @@
       animation: slideUp 0.3s ease;
     }
 
+    /* ===== Plan View ===== */
+    .plan-header {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: white;
+      padding: 20px 16px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-header::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      right: 0;
+      height: 24px;
+      background: var(--bg);
+      border-radius: 50% 50% 0 0;
+    }
+
+    .plan-header h1 {
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .plan-year-card {
+      background: var(--card);
+      border-radius: 16px;
+      margin: 12px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+
+    .plan-year-header {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      border-bottom: 1px solid #F0E8E0;
+    }
+
+    .plan-year-header:active {
+      background: #FAFAFA;
+    }
+
+    .plan-year-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plan-year-badge {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: white;
+      font-size: 15px;
+      font-weight: 900;
+      padding: 5px 14px;
+      border-radius: 10px;
+    }
+
+    .plan-year-badge.current {
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,157,0.3); }
+      50% { box-shadow: 0 0 0 6px rgba(255,107,157,0); }
+    }
+
+    .plan-year-age {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-light);
+    }
+
+    .plan-year-arrow {
+      font-size: 14px;
+      color: var(--text-light);
+      transition: transform 0.2s;
+    }
+
+    .plan-year-arrow.open {
+      transform: rotate(180deg);
+    }
+
+    .plan-year-body {
+      display: none;
+      padding: 12px 16px 16px;
+    }
+
+    .plan-year-body.open {
+      display: block;
+    }
+
+    .plan-trip {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .plan-trip-header {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--purple);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .plan-trip-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .plan-trip-row select,
+    .plan-trip-row input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 2px solid #E8E0D8;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      background: white;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .plan-trip-row select {
+      background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238B7355'/%3E%3C/svg%3E") no-repeat right 8px center;
+      padding-right: 24px;
+    }
+
+    .plan-trip-row select:focus,
+    .plan-trip-row input:focus {
+      outline: none;
+      border-color: var(--purple);
+    }
+
+    .plan-spots {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .plan-spot-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 2px solid #E8E0D8;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      background: white;
+    }
+
+    .plan-spot-input:focus {
+      outline: none;
+      border-color: var(--purple);
+    }
+
+    .plan-spot-input::placeholder {
+      color: #C0B0A0;
+    }
+
+    .plan-trip-filled {
+      border-left: 3px solid var(--green);
+    }
+
+    .plan-count-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 8px;
+      background: var(--visited-light);
+      color: var(--visited);
+    }
+
+    .plan-count-badge.empty {
+      background: #F0E8E0;
+      color: var(--text-light);
+    }
+
     /* ===== Responsive ===== */
     @media (min-width: 600px) {
       .header h1 { font-size: 24px; }
@@ -858,6 +1047,14 @@
     </div>
   </div>
 
+  <!-- Plan View -->
+  <div class="view" id="view-plan">
+    <div class="plan-header">
+      <h1>📅 けいかく</h1>
+    </div>
+    <div id="planYearCards"></div>
+  </div>
+
   <!-- Confetti Container -->
   <div class="confetti-container" id="confettiContainer"></div>
 
@@ -866,6 +1063,10 @@
     <button class="nav-btn active" onclick="switchNav('home')">
       <span class="nav-icon">🏠</span>
       ホーム
+    </button>
+    <button class="nav-btn" onclick="switchNav('plan')">
+      <span class="nav-icon">📅</span>
+      けいかく
     </button>
     <button class="nav-btn" onclick="switchNav('stats')">
       <span class="nav-icon">📊</span>
@@ -1223,14 +1424,200 @@ function switchTab(tab) {
 }
 
 // ===== Bottom Nav =====
+let currentNav = 'home';
 function switchNav(view) {
+  currentNav = view;
   document.querySelectorAll('.nav-btn').forEach((b, i) => {
-    b.classList.toggle('active', (view === 'home' && i === 0) || (view === 'stats' && i === 1));
+    b.classList.toggle('active',
+      (view === 'home' && i === 0) || (view === 'plan' && i === 1) || (view === 'stats' && i === 2));
   });
-  if (view === 'stats') {
-    document.querySelector('.progress-section').scrollIntoView({ behavior: 'smooth' });
-  } else {
+
+  const homeEls = ['.header', '.progress-section', '.tab-nav'];
+
+  if (view === 'plan') {
+    homeEls.forEach(s => document.querySelector(s).style.display = 'none');
+    document.getElementById('view-map').classList.remove('active');
+    document.getElementById('view-list').classList.remove('active');
+    document.getElementById('view-plan').classList.add('active');
+    renderPlanView();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    homeEls.forEach(s => document.querySelector(s).style.display = '');
+    document.getElementById('view-plan').classList.remove('active');
+    if (view === 'stats') {
+      const activeTab = document.querySelector('.tab-btn.active');
+      const isMap = activeTab && activeTab.textContent.includes('マップ');
+      document.getElementById('view-map').classList.toggle('active', isMap !== false);
+      document.getElementById('view-list').classList.toggle('active', isMap === false);
+      document.querySelector('.progress-section').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      const activeTab = document.querySelector('.tab-btn.active');
+      const isMap = activeTab && activeTab.textContent.includes('マップ');
+      document.getElementById('view-map').classList.toggle('active', isMap !== false);
+      document.getElementById('view-list').classList.toggle('active', isMap === false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+}
+
+// ===== Plan View =====
+let tripPlans = {}; // { "2027": [ {pref:"",month:"",spots:["","",""]}, ... ] }
+
+function loadTripPlans() {
+  try {
+    const saved = localStorage.getItem('keisuke47_tripplans');
+    if (saved) tripPlans = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function saveTripPlans() {
+  localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans));
+}
+
+const ALL_PREFS = [
+  '北海道','青森','岩手','宮城','秋田','山形','福島',
+  '茨城','栃木','群馬','埼玉','千葉','東京','神奈川',
+  '新潟','富山','石川','福井','山梨','長野','岐阜','静岡','愛知',
+  '三重','滋賀','京都','大阪','兵庫','奈良','和歌山',
+  '鳥取','島根','岡山','広島','山口',
+  '徳島','香川','愛媛','高知',
+  '福岡','佐賀','長崎','熊本','大分','宮崎','鹿児島','沖縄'
+];
+
+function ensureYearPlans(year) {
+  if (!tripPlans[year]) {
+    tripPlans[year] = [
+      { pref: '', month: '', spots: ['', '', ''] },
+      { pref: '', month: '', spots: ['', '', ''] },
+      { pref: '', month: '', spots: ['', '', ''] },
+    ];
+  }
+  // Ensure 3 trips
+  while (tripPlans[year].length < 3) {
+    tripPlans[year].push({ pref: '', month: '', spots: ['', '', ''] });
+  }
+  // Ensure each trip has 3 spots
+  tripPlans[year].forEach(t => {
+    if (!t.spots) t.spots = ['', '', ''];
+    while (t.spots.length < 3) t.spots.push('');
+  });
+}
+
+function renderPlanView() {
+  const container = document.getElementById('planYearCards');
+  const currentYear = new Date().getFullYear();
+  let html = '';
+
+  for (let year = 2027; year <= 2036; year++) {
+    ensureYearPlans(year);
+    const age = year - 2024;
+    const isCurrent = year === currentYear;
+
+    // Count filled trips
+    const filledCount = tripPlans[year].filter(t => t.pref).length;
+
+    html += `
+      <div class="plan-year-card">
+        <div class="plan-year-header" onclick="togglePlanYear(${year})">
+          <div class="plan-year-left">
+            <span class="plan-year-badge ${isCurrent ? 'current' : ''}">${year}年</span>
+            <span class="plan-year-age">けいすけ ${age}さい</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="plan-count-badge ${filledCount > 0 ? '' : 'empty'}">${filledCount > 0 ? filledCount + '件' : '未定'}</span>
+            <span class="plan-year-arrow" id="arrow-${year}">▼</span>
+          </div>
+        </div>
+        <div class="plan-year-body" id="plan-body-${year}">
+          ${tripPlans[year].map((trip, idx) => renderTripForm(year, idx, trip)).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+
+  // Auto-open current year
+  const curBody = document.getElementById(`plan-body-${currentYear}`);
+  const curArrow = document.getElementById(`arrow-${currentYear}`);
+  if (curBody) { curBody.classList.add('open'); }
+  if (curArrow) { curArrow.classList.add('open'); }
+}
+
+function renderTripForm(year, idx, trip) {
+  const isFilled = trip.pref ? 'plan-trip-filled' : '';
+  const tripNum = idx + 1;
+  const emoji = ['🚗', '✈️', '🚄'][idx];
+
+  const prefOptions = `<option value="">都道府県</option>` +
+    ALL_PREFS.map(p => `<option value="${p}" ${trip.pref === p ? 'selected' : ''}>${p}</option>`).join('');
+
+  const monthOptions = `<option value="">月</option>` +
+    Array.from({length:12}, (_,i) => i+1).map(m =>
+      `<option value="${m}" ${trip.month == m ? 'selected' : ''}>${m}月</option>`
+    ).join('');
+
+  return `
+    <div class="plan-trip ${isFilled}">
+      <div class="plan-trip-header">${emoji} たび ${tripNum}</div>
+      <div class="plan-trip-row">
+        <select onchange="updateTripPlan(${year},${idx},'pref',this.value)">
+          ${prefOptions}
+        </select>
+        <select onchange="updateTripPlan(${year},${idx},'month',this.value)">
+          ${monthOptions}
+        </select>
+      </div>
+      <div class="plan-spots">
+        <input class="plan-spot-input" type="text" placeholder="📍 スポット1"
+          value="${trip.spots[0] || ''}"
+          onchange="updateTripSpot(${year},${idx},0,this.value)">
+        <input class="plan-spot-input" type="text" placeholder="📍 スポット2"
+          value="${trip.spots[1] || ''}"
+          onchange="updateTripSpot(${year},${idx},1,this.value)">
+        <input class="plan-spot-input" type="text" placeholder="📍 スポット3"
+          value="${trip.spots[2] || ''}"
+          onchange="updateTripSpot(${year},${idx},2,this.value)">
+      </div>
+    </div>
+  `;
+}
+
+function togglePlanYear(year) {
+  const body = document.getElementById(`plan-body-${year}`);
+  const arrow = document.getElementById(`arrow-${year}`);
+  if (body) body.classList.toggle('open');
+  if (arrow) arrow.classList.toggle('open');
+}
+
+function updateTripPlan(year, idx, field, value) {
+  ensureYearPlans(year);
+  tripPlans[year][idx][field] = value;
+  saveTripPlans();
+  // Update the filled indicator
+  const cards = document.querySelectorAll(`#plan-body-${year} .plan-trip`);
+  if (cards[idx]) {
+    cards[idx].classList.toggle('plan-trip-filled', !!tripPlans[year][idx].pref);
+  }
+  // Update count badge
+  updatePlanCountBadge(year);
+}
+
+function updateTripSpot(year, idx, spotIdx, value) {
+  ensureYearPlans(year);
+  tripPlans[year][idx].spots[spotIdx] = value;
+  saveTripPlans();
+}
+
+function updatePlanCountBadge(year) {
+  const filledCount = tripPlans[year].filter(t => t.pref).length;
+  const header = document.querySelector(`#plan-body-${year}`)?.previousElementSibling;
+  if (header) {
+    const badge = header.querySelector('.plan-count-badge');
+    if (badge) {
+      badge.textContent = filledCount > 0 ? filledCount + '件' : '未定';
+      badge.classList.toggle('empty', filledCount === 0);
+    }
   }
 }
 
@@ -1402,6 +1789,7 @@ function updateAll() {
 
 // ===== Init =====
 loadData();
+loadTripPlans();
 updateAll();
 </script>
 </body>
