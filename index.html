@@ -210,6 +210,11 @@
       color: white;
     }
 
+    .pref-cell.planned {
+      background: var(--blue);
+      color: white;
+    }
+
     .pref-cell:active {
       transform: scale(0.92);
     }
@@ -264,6 +269,12 @@
       background: var(--visited-light);
       border-color: var(--visited);
       color: var(--visited);
+    }
+
+    .pref-chip.planned {
+      background: #E0ECFF;
+      border-color: var(--blue);
+      color: var(--blue);
     }
 
     .pref-chip:active {
@@ -1205,10 +1216,20 @@ function updateProgress() {
   }
 }
 
+// ===== Planned Prefs Helper =====
+function getPlannedPrefs() {
+  const planned = new Set();
+  Object.values(tripPlans).forEach(trips => {
+    trips.forEach(t => { if (t.pref) planned.add(t.pref); });
+  });
+  return planned;
+}
+
 // ===== Render Map =====
 function renderMap() {
   const grid = document.getElementById('mapGrid');
   grid.innerHTML = '';
+  const planned = getPlannedPrefs();
 
   const allPrefs = REGIONS.flatMap(r => r.prefs);
 
@@ -1216,8 +1237,11 @@ function renderMap() {
     const pos = GRID_POS[name];
     if (!pos) return;
 
+    const isVisited = records[name]?.visited;
+    const isPlanned = !isVisited && planned.has(name);
+
     const cell = document.createElement('div');
-    cell.className = 'pref-cell' + (records[name]?.visited ? ' visited' : '');
+    cell.className = 'pref-cell' + (isVisited ? ' visited' : '') + (isPlanned ? ' planned' : '');
     cell.textContent = name === '北海道' ? '北海道' : name === '東京' ? '東京' : name === '京都' ? '京都' : name.replace(/[県府]$/,'');
     cell.style.gridRow = pos[0] + 1;
     cell.style.gridColumn = pos[1] + 1;
@@ -1230,6 +1254,7 @@ function renderMap() {
 function renderList() {
   const list = document.getElementById('regionList');
   list.innerHTML = '';
+  const planned = getPlannedPrefs();
 
   REGIONS.forEach(region => {
     const group = document.createElement('div');
@@ -1246,8 +1271,9 @@ function renderList() {
       <div class="region-prefs">
         ${region.prefs.map(p => {
           const v = records[p]?.visited;
-          return `<div class="pref-chip${v ? ' visited' : ''}" onclick="openModal('${p}')">
-            <span class="check">${v ? '✅' : '⬜'}</span>
+          const pl = !v && planned.has(p);
+          return `<div class="pref-chip${v ? ' visited' : ''}${pl ? ' planned' : ''}" onclick="openModal('${p}')">
+            <span class="check">${v ? '✅' : pl ? '📋' : '⬜'}</span>
             ${p}
           </div>`;
         }).join('')}
@@ -1508,7 +1534,7 @@ function renderPlanView() {
   const currentYear = new Date().getFullYear();
   let html = '';
 
-  for (let year = 2027; year <= 2036; year++) {
+  for (let year = 2026; year <= 2036; year++) {
     ensureYearPlans(year);
     const age = year - 2024;
     const isCurrent = year === currentYear;
@@ -1601,6 +1627,8 @@ function updateTripPlan(year, idx, field, value) {
   }
   // Update count badge
   updatePlanCountBadge(year);
+  // Update map/list colors
+  if (field === 'pref') { renderMap(); renderList(); }
 }
 
 function updateTripSpot(year, idx, spotIdx, value) {
