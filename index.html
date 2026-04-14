@@ -796,6 +796,34 @@
       transform: scale(0.96);
     }
 
+    /* ===== Plan-Shiori Link ===== */
+    .plan-shiori-btn {
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      border: 2px dashed var(--pink-light);
+      border-radius: 10px;
+      background: none;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pink);
+      cursor: pointer;
+    }
+
+    .plan-shiori-btn.linked {
+      border-style: solid;
+      background: linear-gradient(135deg, #FFF0F5, #FFE8EF);
+      border-color: var(--pink);
+    }
+
+    .plan-shiori-link-info {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 4px;
+      text-align: center;
+    }
+
     /* ===== Shiori View ===== */
     .shiori-header {
       background: linear-gradient(135deg, #FF6B6B, var(--pink));
@@ -2025,6 +2053,14 @@ function renderTripForm(year, idx, trip) {
       `<option value="${m}" ${trip.month == m ? 'selected' : ''}>${m}月</option>`
     ).join('');
 
+  // Check for linked shiori
+  const linkedShiori = trip.shioriId ? shioriData.find(s => s.id === trip.shioriId) : null;
+  const shioriBtn = linkedShiori
+    ? `<button class="plan-shiori-btn linked" onclick="event.stopPropagation();openShioriFromPlan('${trip.shioriId}')">📖 しおりを見る</button>`
+    : trip.pref
+      ? `<button class="plan-shiori-btn" onclick="event.stopPropagation();createShioriFromPlan(${year},${idx})">📖 しおりを作る</button>`
+      : '';
+
   return `
     <div class="plan-trip ${isFilled}">
       <div class="plan-trip-header">${emoji} たび ${tripNum}</div>
@@ -2047,6 +2083,8 @@ function renderTripForm(year, idx, trip) {
           value="${trip.spots[2] || ''}"
           onchange="updateTripSpot(${year},${idx},2,this.value)">
       </div>
+      ${shioriBtn}
+      ${linkedShiori ? `<div class="plan-shiori-link-info">📖 ${linkedShiori.title}</div>` : ''}
     </div>
   `;
 }
@@ -2320,6 +2358,11 @@ function createShiori() {
 
 function deleteShiori(id) {
   if (!confirm('このしおりを削除しますか？')) return;
+  // Unlink from plan
+  Object.values(tripPlans).forEach(trips => {
+    trips.forEach(t => { if (t.shioriId === id) delete t.shioriId; });
+  });
+  saveTripPlans();
   shioriData = shioriData.filter(s => s.id !== id);
   saveShiori();
   document.getElementById('shioriDetail').classList.remove('active');
@@ -2340,8 +2383,9 @@ function renderShioriList() {
       : '日程未定';
     const dayCount = s.days.length;
     const itemCount = s.days.reduce((sum, d) => sum + d.items.filter(it => it.place).length, 0);
+    const planTag = s.linkedPlan ? `<span style="background:var(--pink-light);color:var(--pink);font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px">📅 けいかくリンク</span>` : '';
     return `<div class="shiori-card" onclick="openShioriDetail('${s.id}')">
-      <div class="shiori-card-title">${s.pref ? s.pref + '：' : ''}${s.title}</div>
+      <div class="shiori-card-title">${s.pref ? s.pref + '：' : ''}${s.title}${planTag}</div>
       <div class="shiori-card-date">${dateText}</div>
       <div class="shiori-card-days">${dayCount}日間 ・ ${itemCount}件のスケジュール</div>
     </div>`;
@@ -2379,11 +2423,17 @@ function renderShioriDetail(shiori) {
     ? `${formatShioriDateFull(shiori.startDate)} 〜 ${formatShioriDateFull(shiori.endDate)}`
     : '日程未定';
 
+  const planInfo = getLinkedPlanInfo(shiori);
+  const planLink = planInfo
+    ? `<div style="font-size:11px;margin-top:6px;opacity:0.85">📅 ${planInfo.year}年 たび${planInfo.idx + 1} とリンク中</div>`
+    : '';
+
   let html = `
     <div class="shiori-detail-header">
       <button class="shiori-back-btn" onclick="backToShioriList()">← もどる</button>
       <div class="shiori-detail-title">${shiori.pref ? shiori.pref + '：' : ''}${shiori.title}</div>
       <div class="shiori-detail-date">${dateText}</div>
+      ${planLink}
       <div class="shiori-detail-actions">
         <button onclick="editShioriMeta('${shiori.id}')">✏️ 編集</button>
         <button onclick="deleteShiori('${shiori.id}')">🗑 削除</button>
@@ -2511,6 +2561,84 @@ function editShioriMeta(id) {
     saveShiori();
     renderShioriDetail(shiori);
   }
+}
+
+// ===== Plan ↔ Shiori Link =====
+function createShioriFromPlan(year, idx) {
+  const trip = tripPlans[year]?.[idx];
+  if (!trip || !trip.pref) return;
+
+  const month = trip.month ? `${trip.month}月` : '';
+  const title = `${trip.pref}たび ${year}年${month}`;
+
+  // Pre-fill dates if month is set
+  let startDate = '', endDate = '';
+  if (trip.month) {
+    const m = String(trip.month).padStart(2, '0');
+    startDate = `${year}-${m}-01`;
+    // Default 2 nights 3 days
+    const sd = new Date(startDate);
+    sd.setDate(sd.getDate() + 2);
+    endDate = sd.toISOString().split('T')[0];
+  }
+
+  const days = [];
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diff = Math.max(1, Math.round((end - start) / 86400000) + 1);
+    for (let i = 0; i < diff; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      days.push({ date: d.toISOString().split('T')[0], items: [{ time: '', place: '', url: '', memo: '' }] });
+    }
+  } else {
+    days.push({ date: '', items: [{ time: '', place: '', url: '', memo: '' }] });
+  }
+
+  // Pre-fill spots as items on day 1
+  const spots = (trip.spots || []).filter(s => s);
+  spots.forEach((spot, i) => {
+    if (i === 0 && days[0]) {
+      days[0].items[0].place = spot;
+    } else if (days[0]) {
+      days[0].items.push({ time: '', place: spot, url: '', memo: '' });
+    }
+  });
+
+  const shiori = {
+    id: Date.now().toString(),
+    title,
+    pref: trip.pref,
+    startDate,
+    endDate,
+    days,
+    linkedPlan: { year, idx }
+  };
+
+  shioriData.unshift(shiori);
+  saveShiori();
+
+  // Link back from plan
+  trip.shioriId = shiori.id;
+  saveTripPlans();
+
+  // Navigate to shiori detail
+  switchNav('shiori');
+  openShioriDetail(shiori.id);
+}
+
+function openShioriFromPlan(shioriId) {
+  switchNav('shiori');
+  openShioriDetail(shioriId);
+}
+
+function getLinkedPlanInfo(shiori) {
+  if (!shiori.linkedPlan) return null;
+  const { year, idx } = shiori.linkedPlan;
+  const trip = tripPlans[year]?.[idx];
+  if (!trip) return null;
+  return { year, idx, trip };
 }
 
 // ===== Update All =====
