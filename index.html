@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>けいすけの47都道府県たび</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FF6B9D">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="47たび">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
@@ -1180,6 +1187,205 @@
       align-items: center;
       justify-content: center;
       font-family: inherit;
+    }
+
+    /* Packing / Budget / Weather sections */
+    .shiori-section {
+      margin: 12px 16px;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .shiori-section-header {
+      padding: 12px 16px;
+      font-weight: 900;
+      font-size: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .shiori-section-header.packing { background: linear-gradient(135deg, #FFE8B8, #FFD893); color: var(--text); }
+    .shiori-section-header.budget { background: linear-gradient(135deg, #C8E6C9, #A5D6A7); color: var(--text); }
+    .shiori-section-header.weather { background: linear-gradient(135deg, #B3E5FC, #81D4FA); color: var(--text); }
+
+    .shiori-section-body {
+      display: none;
+      padding: 12px 16px;
+    }
+
+    .shiori-section-body.open {
+      display: block;
+    }
+
+    /* Packing list */
+    .packing-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid #F5F0EB;
+    }
+    .packing-item:last-child { border-bottom: none; }
+
+    .packing-checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--green);
+      flex-shrink: 0;
+    }
+
+    .packing-text {
+      flex: 1;
+      font-size: 13px;
+      padding: 4px 8px;
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      font-family: inherit;
+      background: transparent;
+      color: var(--text);
+      outline: none;
+    }
+
+    .packing-text:focus {
+      border-color: var(--pink-light);
+      background: #FDFBF9;
+    }
+
+    .packing-text.checked {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .packing-add-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .packing-add-row input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1.5px solid #EDE8E3;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      background: #FDFBF9;
+      outline: none;
+    }
+
+    .packing-add-row button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 10px;
+      background: var(--green);
+      color: white;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .packing-template-btn {
+      padding: 6px 12px;
+      border: 1.5px dashed var(--orange);
+      background: none;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--orange);
+      cursor: pointer;
+      font-family: inherit;
+      margin-bottom: 8px;
+    }
+
+    /* Budget */
+    .budget-summary {
+      background: #FDFBF9;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .budget-summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .budget-summary-row.total {
+      border-top: 1px solid #EDE8E3;
+      margin-top: 6px;
+      padding-top: 8px;
+      font-weight: 900;
+    }
+
+    .budget-summary-row.diff.over { color: #FF6B6B; }
+    .budget-summary-row.diff.under { color: var(--green); }
+
+    .budget-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid #EDE8E3;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      background: #FDFBF9;
+      outline: none;
+    }
+
+    .budget-expense {
+      display: grid;
+      grid-template-columns: 90px 1fr 80px 24px;
+      gap: 6px;
+      padding: 6px 0;
+      align-items: center;
+    }
+
+    .budget-expense select,
+    .budget-expense input {
+      padding: 6px 8px;
+      border: 1.5px solid #EDE8E3;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      background: white;
+      outline: none;
+      width: 100%;
+    }
+
+    .budget-expense .delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      opacity: 0.5;
+      font-size: 14px;
+    }
+
+    /* Weather */
+    .weather-day-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #F5F0EB;
+    }
+
+    .weather-day-row:last-child { border-bottom: none; }
+
+    .weather-link {
+      padding: 6px 12px;
+      background: var(--blue);
+      color: white;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .shiori-blog-btn {
@@ -2770,6 +2976,14 @@ function renderShioriDetail(shiori) {
   });
 
   html += `<button class="shiori-add-day-btn" onclick="addShioriDay('${shiori.id}')">＋ 日を追加</button>`;
+
+  // Packing list section
+  html += renderPackingSection(shiori);
+  // Budget section
+  html += renderBudgetSection(shiori);
+  // Weather section
+  html += renderWeatherSection(shiori);
+
   html += `<button class="shiori-blog-btn" onclick="openBlogModal('${shiori.id}')">📝 ブログ記事として書き出し</button>`;
 
   if (shiori.importedMemo) {
@@ -3043,6 +3257,267 @@ function editShioriMeta(id) {
     saveShiori();
     renderShioriDetail(shiori);
   }
+}
+
+// ===== Packing / Budget / Weather =====
+const PACKING_TEMPLATE = [
+  '👕 着替え（人数分×日数）','🧦 靴下・下着','🩲 おむつ・おしりふき','👶 よだれかけ',
+  '🍼 ミルク・哺乳瓶','🥄 おやつ・離乳食','💊 薬（解熱剤・かぜ薬）','🩹 絆創膏',
+  '🪥 歯ブラシ','🧴 シャンプー類','💧 水筒','🧥 上着・羽織もの',
+  '👒 帽子','☂ 折りたたみ傘','🧻 ティッシュ・ウェットティッシュ','🛒 エコバッグ',
+  '📱 充電器','💳 現金・カード','🎫 チケット・予約確認','📷 カメラ',
+  '🧸 お気に入りのおもちゃ','📚 絵本'
+];
+
+const BUDGET_CATEGORIES = ['交通費','宿泊費','食費','観光費','お土産','その他'];
+
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ----- Packing -----
+function renderPackingSection(shiori) {
+  if (!shiori.packing) shiori.packing = [];
+  const checkedCount = shiori.packing.filter(p => p.checked).length;
+  const totalCount = shiori.packing.length;
+  const sectionId = `packing-body-${shiori.id}`;
+  let body = '';
+  if (totalCount === 0) {
+    body += `<button class="packing-template-btn" onclick="loadPackingTemplate('${shiori.id}')">📋 テンプレを読み込む</button>`;
+  } else {
+    body += `<button class="packing-template-btn" onclick="loadPackingTemplate('${shiori.id}')">＋ テンプレ追加</button>`;
+  }
+  body += shiori.packing.map((p, i) => `
+    <div class="packing-item">
+      <input type="checkbox" class="packing-checkbox" ${p.checked ? 'checked' : ''}
+        onchange="togglePackingItem('${shiori.id}',${i},this.checked)">
+      <input type="text" class="packing-text ${p.checked ? 'checked' : ''}" value="${escapeHtml(p.text)}"
+        onchange="updatePackingItem('${shiori.id}',${i},this.value)">
+      <button class="shiori-item-delete" onclick="removePackingItem('${shiori.id}',${i})">🗑</button>
+    </div>
+  `).join('');
+  body += `
+    <div class="packing-add-row">
+      <input type="text" id="packing-input-${shiori.id}" placeholder="持ち物を追加" onkeypress="if(event.key==='Enter')addPackingItem('${shiori.id}')">
+      <button onclick="addPackingItem('${shiori.id}')">追加</button>
+    </div>
+  `;
+
+  return `
+    <div class="shiori-section">
+      <div class="shiori-section-header packing" onclick="toggleSection('${sectionId}')">
+        <span>🎒 持ち物リスト ${totalCount > 0 ? `（${checkedCount}/${totalCount}）` : ''}</span>
+        <span style="font-size:14px">▼</span>
+      </div>
+      <div class="shiori-section-body" id="${sectionId}">${body}</div>
+    </div>
+  `;
+}
+
+function loadPackingTemplate(id) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  if (!shiori.packing) shiori.packing = [];
+  PACKING_TEMPLATE.forEach(text => {
+    if (!shiori.packing.some(p => p.text === text)) {
+      shiori.packing.push({ text, checked: false });
+    }
+  });
+  saveShiori();
+  renderShioriDetail(shiori);
+  // Re-open the section
+  setTimeout(() => document.getElementById(`packing-body-${id}`)?.classList.add('open'), 0);
+}
+
+function togglePackingItem(id, idx, checked) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  shiori.packing[idx].checked = checked;
+  saveShiori();
+  renderShioriDetail(shiori);
+  setTimeout(() => document.getElementById(`packing-body-${id}`)?.classList.add('open'), 0);
+}
+
+function updatePackingItem(id, idx, text) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  shiori.packing[idx].text = text;
+  saveShiori();
+}
+
+function removePackingItem(id, idx) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  shiori.packing.splice(idx, 1);
+  saveShiori();
+  renderShioriDetail(shiori);
+  setTimeout(() => document.getElementById(`packing-body-${id}`)?.classList.add('open'), 0);
+}
+
+function addPackingItem(id) {
+  const inputEl = document.getElementById(`packing-input-${id}`);
+  const text = inputEl.value.trim();
+  if (!text) return;
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  if (!shiori.packing) shiori.packing = [];
+  shiori.packing.push({ text, checked: false });
+  saveShiori();
+  renderShioriDetail(shiori);
+  setTimeout(() => {
+    document.getElementById(`packing-body-${id}`)?.classList.add('open');
+    document.getElementById(`packing-input-${id}`)?.focus();
+  }, 0);
+}
+
+// ----- Budget -----
+function renderBudgetSection(shiori) {
+  if (!shiori.budget) shiori.budget = { planned: 0, expenses: [] };
+  const sectionId = `budget-body-${shiori.id}`;
+  const totalActual = shiori.budget.expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+  const planned = parseFloat(shiori.budget.planned) || 0;
+  const diff = planned - totalActual;
+  const diffClass = diff < 0 ? 'over' : 'under';
+  const diffText = diff < 0 ? `${Math.abs(diff).toLocaleString()}円オーバー😱` : `${diff.toLocaleString()}円残り✨`;
+
+  // Per category
+  const byCategory = {};
+  shiori.budget.expenses.forEach(e => {
+    if (!e.category) return;
+    byCategory[e.category] = (byCategory[e.category] || 0) + (parseFloat(e.amount) || 0);
+  });
+
+  let body = `
+    <label style="font-size:12px;font-weight:700;color:var(--text-light);display:block;margin-bottom:4px">💰 予算（円）</label>
+    <input type="number" class="budget-input" placeholder="予算" value="${planned || ''}"
+      onchange="updateBudgetPlanned('${shiori.id}',this.value)" style="margin-bottom:12px">
+
+    <div class="budget-summary">
+      <div class="budget-summary-row"><span>予算</span><span>¥${planned.toLocaleString()}</span></div>
+      <div class="budget-summary-row"><span>使った</span><span>¥${totalActual.toLocaleString()}</span></div>
+      <div class="budget-summary-row total diff ${diffClass}"><span>差額</span><span>${diffText}</span></div>
+      ${Object.keys(byCategory).length ? '<div style="margin-top:8px;padding-top:8px;border-top:1px dashed #EDE8E3">' +
+        Object.entries(byCategory).map(([c, a]) => `<div class="budget-summary-row" style="font-size:11px"><span>　${c}</span><span>¥${a.toLocaleString()}</span></div>`).join('') +
+        '</div>' : ''}
+    </div>
+
+    <div style="font-size:12px;font-weight:700;color:var(--text-light);margin-bottom:6px">使ったお金</div>
+  `;
+
+  body += shiori.budget.expenses.map((e, i) => `
+    <div class="budget-expense">
+      <select onchange="updateExpense('${shiori.id}',${i},'category',this.value)">
+        ${BUDGET_CATEGORIES.map(c => `<option value="${c}" ${e.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+      </select>
+      <input type="text" placeholder="メモ" value="${escapeHtml(e.memo || '')}"
+        onchange="updateExpense('${shiori.id}',${i},'memo',this.value)">
+      <input type="number" placeholder="0" value="${e.amount || ''}"
+        onchange="updateExpense('${shiori.id}',${i},'amount',this.value)">
+      <button class="delete" onclick="removeExpense('${shiori.id}',${i})">🗑</button>
+    </div>
+  `).join('');
+
+  body += `
+    <button class="packing-template-btn" style="margin-top:10px;border-color:var(--green);color:var(--green)" onclick="addExpense('${shiori.id}')">＋ 出費を追加</button>
+  `;
+
+  return `
+    <div class="shiori-section">
+      <div class="shiori-section-header budget" onclick="toggleSection('${sectionId}')">
+        <span>💰 予算 ${planned > 0 ? `（¥${totalActual.toLocaleString()}/¥${planned.toLocaleString()}）` : ''}</span>
+        <span style="font-size:14px">▼</span>
+      </div>
+      <div class="shiori-section-body" id="${sectionId}">${body}</div>
+    </div>
+  `;
+}
+
+function updateBudgetPlanned(id, value) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  if (!shiori.budget) shiori.budget = { planned: 0, expenses: [] };
+  shiori.budget.planned = parseFloat(value) || 0;
+  saveShiori();
+  renderShioriDetail(shiori);
+  setTimeout(() => document.getElementById(`budget-body-${id}`)?.classList.add('open'), 0);
+}
+
+function addExpense(id) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  if (!shiori.budget) shiori.budget = { planned: 0, expenses: [] };
+  shiori.budget.expenses.push({ category: '交通費', memo: '', amount: '' });
+  saveShiori();
+  renderShioriDetail(shiori);
+  setTimeout(() => document.getElementById(`budget-body-${id}`)?.classList.add('open'), 0);
+}
+
+function updateExpense(id, idx, field, value) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  shiori.budget.expenses[idx][field] = value;
+  saveShiori();
+  // Only re-render if amount changed (to update totals)
+  if (field === 'amount' || field === 'category') {
+    renderShioriDetail(shiori);
+    setTimeout(() => document.getElementById(`budget-body-${id}`)?.classList.add('open'), 0);
+  }
+}
+
+function removeExpense(id, idx) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  shiori.budget.expenses.splice(idx, 1);
+  saveShiori();
+  renderShioriDetail(shiori);
+  setTimeout(() => document.getElementById(`budget-body-${id}`)?.classList.add('open'), 0);
+}
+
+// ----- Weather -----
+function renderWeatherSection(shiori) {
+  const sectionId = `weather-body-${shiori.id}`;
+  const place = shiori.pref || '';
+  if (!shiori.days.length) {
+    return `
+      <div class="shiori-section">
+        <div class="shiori-section-header weather" onclick="toggleSection('${sectionId}')">
+          <span>🌤 天気予報</span><span style="font-size:14px">▼</span>
+        </div>
+        <div class="shiori-section-body" id="${sectionId}">
+          <p style="font-size:12px;color:var(--text-light)">日付を入れたら天気予報リンクが出るで！</p>
+        </div>
+      </div>
+    `;
+  }
+
+  let body = `<p style="font-size:11px;color:var(--text-light);margin-bottom:10px">${place ? place + 'の' : ''}天気を見に行こう！</p>`;
+  shiori.days.forEach((day, idx) => {
+    const dateLabel = day.date ? formatShioriDateFull(day.date) : `${idx + 1}日目`;
+    const query = encodeURIComponent(`${place} 天気 ${day.date || ''}`);
+    const url = `https://www.google.com/search?q=${query}`;
+    body += `
+      <div class="weather-day-row">
+        <span style="font-size:13px">${idx + 1}日目 ${day.date ? '・ ' + dateLabel : ''}</span>
+        <a href="${url}" target="_blank" rel="noopener" class="weather-link">天気を見る</a>
+      </div>
+    `;
+  });
+
+  // Tenki.jp link as bonus
+  if (place) {
+    body += `<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #EDE8E3;text-align:center">
+      <a href="https://tenki.jp/search/?keyword=${encodeURIComponent(place)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--blue);text-decoration:none;font-weight:700">📡 tenki.jpで${place}を見る →</a>
+    </div>`;
+  }
+
+  return `
+    <div class="shiori-section">
+      <div class="shiori-section-header weather" onclick="toggleSection('${sectionId}')">
+        <span>🌤 天気予報</span><span style="font-size:14px">▼</span>
+      </div>
+      <div class="shiori-section-body" id="${sectionId}">${body}</div>
+    </div>
+  `;
 }
 
 // ===== Shiori Import from Text =====
@@ -3445,6 +3920,13 @@ function updateAll() {
   renderMap();
   renderList();
   updateBackupStats();
+}
+
+// ===== PWA Service Worker =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
+  });
 }
 
 // ===== Init =====
