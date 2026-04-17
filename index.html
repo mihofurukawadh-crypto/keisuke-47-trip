@@ -1442,6 +1442,135 @@
     .blog-preview img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
     .blog-preview p { margin: 4px 0; }
 
+    /* Overview (まとめ) styles */
+    .overview-modal {
+      background: white;
+      border-radius: 20px;
+      padding: 0;
+      width: 95%;
+      max-width: 500px;
+      max-height: 92vh;
+      overflow: hidden;
+      animation: slideUp 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .overview-header {
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      color: white;
+      padding: 16px 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .overview-header .title {
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .overview-header .date {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+    .overview-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .overview-section-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--pink);
+      margin: 16px 0 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px dashed var(--pink-light);
+    }
+    .overview-section-title:first-child { margin-top: 0; }
+    .overview-day-title {
+      font-size: 14px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--pink-light), #FFD0E0);
+      padding: 6px 10px;
+      border-radius: 8px;
+      margin: 12px 0 8px;
+    }
+    .overview-item {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px dashed #F0EAE3;
+      font-size: 13px;
+    }
+    .overview-item:last-child { border-bottom: none; }
+    .overview-item .time {
+      font-weight: 700;
+      color: var(--text-light);
+    }
+    .overview-item .place {
+      color: var(--text);
+    }
+    .overview-item .memo {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+    .overview-item .url a {
+      font-size: 11px;
+      color: var(--blue);
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .overview-photos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .overview-photos img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    .overview-packing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 12px;
+      font-size: 12px;
+    }
+    .overview-packing-grid .item {
+      padding: 4px 0;
+      color: var(--text);
+    }
+    .overview-packing-grid .item.checked {
+      text-decoration: line-through;
+      color: var(--text-light);
+    }
+    .overview-budget-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 13px;
+    }
+    .overview-budget-row.total {
+      border-top: 1.5px solid #EDE8E3;
+      margin-top: 6px;
+      padding-top: 8px;
+      font-weight: 900;
+    }
+    .overview-close {
+      padding: 14px;
+      background: #F0EBE5;
+      color: var(--text-light);
+      border: none;
+      border-radius: 0 0 20px 20px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
     .blog-format-tabs {
       display: flex;
       gap: 8px;
@@ -1918,6 +2047,15 @@
       </div>
     </div>
     <div id="shioriList" class="shiori-list"></div>
+  </div>
+
+  <!-- Overview Modal -->
+  <div class="shiori-modal-overlay" id="overviewOverlay" onclick="if(event.target===this)closeOverviewModal()">
+    <div class="overview-modal">
+      <div class="overview-header" id="overviewHeader"></div>
+      <div class="overview-body" id="overviewBody"></div>
+      <button class="overview-close" onclick="closeOverviewModal()">とじる</button>
+    </div>
   </div>
 
   <!-- Blog Export Modal -->
@@ -3009,6 +3147,7 @@ function renderShioriDetail(shiori) {
   // Weather section
   html += renderWeatherSection(shiori);
 
+  html += `<button class="shiori-blog-btn" style="background:linear-gradient(135deg,var(--purple),var(--blue));margin-bottom:8px" onclick="openOverviewModal('${shiori.id}')">📋 まとめて見る</button>`;
   html += `<button class="shiori-blog-btn" onclick="openBlogModal('${shiori.id}')">📝 ブログ記事として書き出し</button>`;
 
   if (shiori.importedMemo) {
@@ -3115,6 +3254,97 @@ function removeShioriItemPhoto(id, dayIdx, itemIdx, photoIdx) {
 function openPhotoFullscreen(src) {
   document.getElementById('photoFullscreenImg').src = src;
   document.getElementById('photoFullscreen').style.display = 'flex';
+}
+
+// ===== Overview Modal =====
+function openOverviewModal(id) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+
+  const dateText = shiori.startDate && shiori.endDate
+    ? `${formatShioriDateFull(shiori.startDate)} 〜 ${formatShioriDateFull(shiori.endDate)}`
+    : '';
+  const header = document.getElementById('overviewHeader');
+  header.innerHTML = `
+    <div class="title">${shiori.pref ? shiori.pref + '：' : ''}${escapeHtml(shiori.title)}</div>
+    ${dateText ? `<div class="date">📅 ${dateText}</div>` : ''}
+  `;
+
+  let body = '';
+
+  // ----- Schedule -----
+  if (shiori.days.length && shiori.days.some(d => d.items.some(it => it.place || it.time))) {
+    body += `<div class="overview-section-title">📅 スケジュール</div>`;
+    shiori.days.forEach((day, dayIdx) => {
+      const validItems = day.items.filter(it => it.time || it.place || it.memo || (it.photos && it.photos.length));
+      if (!validItems.length) return;
+      const dateLabel = day.date ? formatShioriDateFull(day.date) : '';
+      body += `<div class="overview-day-title">🌟 ${dayIdx + 1}日目${dateLabel ? '　' + dateLabel : ''}</div>`;
+      validItems.forEach(item => {
+        body += `<div class="overview-item">
+          <div class="time">${item.time || '—'}</div>
+          <div>
+            <div class="place">${escapeHtml(item.place || '')}</div>
+            ${item.memo ? `<div class="memo">📝 ${escapeHtml(item.memo)}</div>` : ''}
+            ${item.url ? `<div class="url"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">🔗 ${escapeHtml(item.url)}</a></div>` : ''}
+            ${(item.photos && item.photos.length) ? `<div class="overview-photos">${item.photos.map(p => `<img src="${p}" onclick="openPhotoFullscreen('${p.replace(/'/g, "\\'")}')">`).join('')}</div>` : ''}
+          </div>
+        </div>`;
+      });
+    });
+  }
+
+  // ----- Packing -----
+  if (shiori.packing && shiori.packing.length) {
+    const checked = shiori.packing.filter(p => p.checked).length;
+    body += `<div class="overview-section-title">🎒 持ち物リスト（${checked}/${shiori.packing.length}）</div>`;
+    body += `<div class="overview-packing-grid">`;
+    shiori.packing.forEach(p => {
+      body += `<div class="item ${p.checked ? 'checked' : ''}">${p.checked ? '☑' : '☐'} ${escapeHtml(p.text)}</div>`;
+    });
+    body += `</div>`;
+  }
+
+  // ----- Budget -----
+  if (shiori.budget && (shiori.budget.planned || (shiori.budget.expenses && shiori.budget.expenses.length))) {
+    const planned = parseFloat(shiori.budget.planned) || 0;
+    const expenses = shiori.budget.expenses || [];
+    const totalActual = expenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+    const byCat = {};
+    expenses.forEach(e => {
+      if (!e.category) return;
+      byCat[e.category] = (byCat[e.category] || 0) + (parseFloat(e.amount) || 0);
+    });
+
+    body += `<div class="overview-section-title">💰 予算</div>`;
+    body += `<div class="overview-budget-row"><span>予算</span><span>¥${planned.toLocaleString()}</span></div>`;
+    Object.entries(byCat).forEach(([c, a]) => {
+      body += `<div class="overview-budget-row" style="font-size:12px;color:var(--text-light)"><span>　${c}</span><span>¥${a.toLocaleString()}</span></div>`;
+    });
+    body += `<div class="overview-budget-row total"><span>合計</span><span>¥${totalActual.toLocaleString()}</span></div>`;
+    if (planned > 0) {
+      const diff = planned - totalActual;
+      const diffText = diff < 0 ? `${Math.abs(diff).toLocaleString()}円オーバー😱` : `${diff.toLocaleString()}円残り✨`;
+      body += `<div class="overview-budget-row" style="color:${diff < 0 ? '#FF6B6B' : 'var(--green)'}"><span>差額</span><span>${diffText}</span></div>`;
+    }
+  }
+
+  // ----- Memo -----
+  if (shiori.importedMemo) {
+    body += `<div class="overview-section-title">📝 メモ</div>`;
+    body += `<div style="font-size:13px;line-height:1.7;white-space:pre-wrap;color:var(--text)">${escapeHtml(shiori.importedMemo)}</div>`;
+  }
+
+  if (!body) {
+    body = '<div style="text-align:center;padding:40px;color:var(--text-light)">まだ内容が入ってないよ〜</div>';
+  }
+
+  document.getElementById('overviewBody').innerHTML = body;
+  document.getElementById('overviewOverlay').classList.add('show');
+}
+
+function closeOverviewModal() {
+  document.getElementById('overviewOverlay').classList.remove('show');
 }
 
 // ===== Blog Export =====
