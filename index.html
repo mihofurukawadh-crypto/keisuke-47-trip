@@ -1072,7 +1072,7 @@
     }
 
     .shiori-item {
-      padding: 12px 16px;
+      padding: 12px;
       border-bottom: 1px solid #F5F0EB;
     }
 
@@ -1083,8 +1083,9 @@
     .shiori-item-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 6px;
+      flex-wrap: wrap;
     }
 
     .shiori-item-row:last-child {
@@ -1100,6 +1101,7 @@
 
     .shiori-item-input {
       flex: 1;
+      min-width: 0;
       font-family: inherit;
       font-size: 13px;
       padding: 6px 10px;
@@ -1116,7 +1118,16 @@
     }
 
     .shiori-item-input.time-input {
-      max-width: 80px;
+      flex: 0 0 auto;
+      width: 90px;
+      max-width: 90px;
+    }
+
+    /* On very narrow screens, stack time and place */
+    @media (max-width: 400px) {
+      .shiori-item-row .shiori-item-input:not(.time-input) {
+        flex: 1 1 100%;
+      }
     }
 
     .shiori-item-url {
