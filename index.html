@@ -796,6 +796,73 @@
       transform: scale(0.96);
     }
 
+    /* ===== Backup Card ===== */
+    .backup-card {
+      margin: 20px 16px 24px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .backup-card h3 {
+      font-size: 15px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .backup-desc {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .backup-stats {
+      background: #FDFBF9;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .backup-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .backup-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .backup-btn.export {
+      background: linear-gradient(135deg, var(--green), #4FBA5C);
+      color: white;
+    }
+
+    .backup-btn.import {
+      background: white;
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+
+    .backup-note {
+      font-size: 10px;
+      color: var(--text-light);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
     /* ===== Plan-Shiori Link ===== */
     .plan-shiori-btn {
       width: 100%;
@@ -1519,6 +1586,17 @@
   <!-- List View -->
   <div class="view" id="view-list">
     <div class="region-list" id="regionList"></div>
+    <div class="backup-card" id="backupCard">
+      <h3>💾 データのバックアップ</h3>
+      <p class="backup-desc">大切な思い出を守るために、定期的にバックアップしてね！</p>
+      <div class="backup-stats" id="backupStats"></div>
+      <div class="backup-btns">
+        <button class="backup-btn export" onclick="exportAllData()">📥 バックアップを書き出す</button>
+        <button class="backup-btn import" onclick="document.getElementById('backupFileInput').click()">📤 バックアップから復元</button>
+      </div>
+      <input type="file" id="backupFileInput" accept=".json,application/json" style="display:none" onchange="importAllData(event)">
+      <p class="backup-note">⚠️ ブラウザのデータを消すと記録が全部消えるよ。月1回くらい書き出してiCloudやGoogle Driveに保存しておくのがおすすめ！</p>
+    </div>
   </div>
 
   <!-- Modal -->
@@ -3268,11 +3346,105 @@ function getLinkedPlanInfo(shiori) {
   return { year, idx, trip };
 }
 
+// ===== Backup / Restore =====
+function getBackupData() {
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    records: records,
+    tripPlans: tripPlans,
+    shioriData: shioriData
+  };
+}
+
+function updateBackupStats() {
+  const el = document.getElementById('backupStats');
+  if (!el) return;
+  const visited = Object.values(records).filter(r => r.visited).length;
+  const planned = Object.values(tripPlans).reduce((sum, trips) => sum + trips.filter(t => t.pref).length, 0);
+  const shioriCount = shioriData.length;
+  const photoCount = shioriData.reduce((sum, s) => sum + s.days.reduce((ss, d) => ss + d.items.reduce((ii, it) => ii + (it.photos?.length || 0), 0), 0), 0);
+  // Estimate localStorage size
+  let bytes = 0;
+  try {
+    bytes = (localStorage.getItem('keisuke47_records')?.length || 0)
+          + (localStorage.getItem('keisuke47_tripplans')?.length || 0)
+          + (localStorage.getItem('keisuke47_shiori')?.length || 0);
+  } catch(e) {}
+  const mb = (bytes / 1024 / 1024).toFixed(2);
+  el.innerHTML = `📊 訪問県：${visited}　📅 けいかく：${planned}件　📖 しおり：${shioriCount}件　📸 写真：${photoCount}枚<br>💽 データサイズ：約${mb}MB`;
+}
+
+function exportAllData() {
+  const data = getBackupData();
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `けいすけ47旅_バックアップ_${today}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  alert('バックアップを書き出したよ！📥\niCloudやGoogle Driveに保存しておくと安心や〜');
+}
+
+function importAllData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data || typeof data !== 'object') throw new Error('不正なデータ');
+
+      const counts = {
+        records: data.records ? Object.values(data.records).filter(r => r.visited).length : 0,
+        plans: data.tripPlans ? Object.values(data.tripPlans).reduce((s, t) => s + t.filter(x => x.pref).length, 0) : 0,
+        shiori: data.shioriData?.length || 0
+      };
+
+      const ok = confirm(
+        `📤 復元しますか？\n\n` +
+        `訪問県：${counts.records}件\n` +
+        `けいかく：${counts.plans}件\n` +
+        `しおり：${counts.shiori}件\n\n` +
+        `⚠️ 今のデータは上書きされるで！`
+      );
+      if (!ok) { e.target.value = ''; return; }
+
+      if (data.records) {
+        records = data.records;
+        localStorage.setItem('keisuke47_records', JSON.stringify(records));
+      }
+      if (data.tripPlans) {
+        tripPlans = data.tripPlans;
+        localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans));
+      }
+      if (data.shioriData) {
+        shioriData = data.shioriData;
+        localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+      }
+
+      alert('✅ 復元完了！');
+      updateAll();
+      updateBackupStats();
+    } catch(err) {
+      alert('❌ 復元失敗：ファイルが壊れてるかも\n' + err.message);
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
 // ===== Update All =====
 function updateAll() {
   updateProgress();
   renderMap();
   renderList();
+  updateBackupStats();
 }
 
 // ===== Init =====
