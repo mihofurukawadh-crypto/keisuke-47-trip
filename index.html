@@ -1793,15 +1793,29 @@
   <div class="view" id="view-list">
     <div class="region-list" id="regionList"></div>
     <div class="backup-card" id="backupCard">
-      <h3>💾 データのバックアップ</h3>
-      <p class="backup-desc">大切な思い出を守るために、定期的にバックアップしてね！</p>
+      <h3>☁️ クラウド同期（PC↔スマホ）</h3>
+      <p class="backup-desc">合言葉を入れたら、スマホとPCで同じデータが見れる！家族みんなで共有もできるで✨</p>
+      <div style="margin:12px 0">
+        <label style="font-size:12px;font-weight:700;color:var(--text-light);display:block;margin-bottom:4px">合言葉（家族で同じものを使ってね）</label>
+        <input type="password" id="cloudKey" class="budget-input" placeholder="例：keisuke2024oct" style="margin-bottom:8px">
+        <div class="backup-btns">
+          <button class="backup-btn export" onclick="syncToCloud()">☁️ クラウドに保存</button>
+          <button class="backup-btn import" onclick="syncFromCloud()">📥 クラウドから取得</button>
+        </div>
+        <div id="cloudStatus" style="font-size:11px;color:var(--text-light);margin-top:8px;text-align:center"></div>
+      </div>
+      <p class="backup-note">💡 合言葉は8文字以上、推測されにくいものに！家族にだけLINEなどで教えてね。<br>同じ合言葉を入れたデバイスで同じデータが見れます。</p>
+    </div>
+
+    <div class="backup-card" id="backupCard2">
+      <h3>💾 ファイルでバックアップ</h3>
+      <p class="backup-desc">クラウド同期と別に、ファイルとしても保存できるよ！</p>
       <div class="backup-stats" id="backupStats"></div>
       <div class="backup-btns">
         <button class="backup-btn export" onclick="exportAllData()">📥 バックアップを書き出す</button>
         <button class="backup-btn import" onclick="document.getElementById('backupFileInput').click()">📤 バックアップから復元</button>
       </div>
       <input type="file" id="backupFileInput" accept=".json,application/json" style="display:none" onchange="importAllData(event)">
-      <p class="backup-note">⚠️ ブラウザのデータを消すと記録が全部消えるよ。月1回くらい書き出してiCloudやGoogle Driveに保存しておくのがおすすめ！</p>
     </div>
   </div>
 
@@ -3929,11 +3943,127 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ===== Firebase Cloud Sync =====
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDP3ceQMxGjh4paepoDKLYgxwimNZBrNmY",
+  authDomain: "keisuke-47-trip.firebaseapp.com",
+  projectId: "keisuke-47-trip",
+  storageBucket: "keisuke-47-trip.firebasestorage.app",
+  messagingSenderId: "783251879124",
+  appId: "1:783251879124:web:da99bc924de55016703741"
+};
+
+let _firestoreDB = null;
+async function initFirebase() {
+  if (_firestoreDB) return _firestoreDB;
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, doc, setDoc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const app = initializeApp(FIREBASE_CONFIG);
+    _firestoreDB = { db: getFirestore(app), doc, setDoc, getDoc };
+    return _firestoreDB;
+  } catch(e) {
+    console.error('Firebase init failed:', e);
+    throw e;
+  }
+}
+
+function getCloudKey() {
+  const key = document.getElementById('cloudKey').value.trim();
+  if (key.length < 6) {
+    alert('合言葉は6文字以上にしてね！🔑');
+    return null;
+  }
+  // Sanitize: only allow alphanumeric for Firestore doc ID
+  const safe = key.replace(/[^a-zA-Z0-9_-]/g, '');
+  if (safe.length < 6) {
+    alert('合言葉は半角英数字（_と-もOK）で6文字以上にしてね！');
+    return null;
+  }
+  localStorage.setItem('keisuke47_cloudkey', safe);
+  return safe;
+}
+
+function setCloudStatus(msg, type) {
+  const el = document.getElementById('cloudStatus');
+  if (!el) return;
+  const colors = { success: 'var(--green)', error: '#FF6B6B', loading: 'var(--blue)', info: 'var(--text-light)' };
+  el.style.color = colors[type] || colors.info;
+  el.textContent = msg;
+}
+
+async function syncToCloud() {
+  const key = getCloudKey();
+  if (!key) return;
+  setCloudStatus('☁️ クラウドに保存中...', 'loading');
+  try {
+    const { db, doc, setDoc } = await initFirebase();
+    const data = getBackupData();
+    await setDoc(doc(db, 'users', key), {
+      data: JSON.stringify(data),
+      updatedAt: new Date().toISOString()
+    });
+    setCloudStatus(`✅ 保存完了！（${new Date().toLocaleTimeString('ja-JP')}）`, 'success');
+  } catch(e) {
+    console.error(e);
+    setCloudStatus('❌ 保存失敗：' + e.message, 'error');
+  }
+}
+
+async function syncFromCloud() {
+  const key = getCloudKey();
+  if (!key) return;
+  setCloudStatus('📥 クラウドから取得中...', 'loading');
+  try {
+    const { db, doc, getDoc } = await initFirebase();
+    const snap = await getDoc(doc(db, 'users', key));
+    if (!snap.exists()) {
+      setCloudStatus('❌ この合言葉のデータはまだ無いで', 'error');
+      return;
+    }
+    const stored = snap.data();
+    const data = JSON.parse(stored.data);
+
+    const counts = {
+      records: data.records ? Object.values(data.records).filter(r => r.visited).length : 0,
+      plans: data.tripPlans ? Object.values(data.tripPlans).reduce((s, t) => s + t.filter(x => x.pref).length, 0) : 0,
+      shiori: data.shioriData?.length || 0
+    };
+    const ok = confirm(
+      `クラウドから復元しますか？\n\n` +
+      `📊 訪問県：${counts.records}件\n` +
+      `📅 けいかく：${counts.plans}件\n` +
+      `📖 しおり：${counts.shiori}件\n` +
+      `🕐 最終更新：${new Date(stored.updatedAt).toLocaleString('ja-JP')}\n\n` +
+      `⚠️ 今のデータは上書きされるで！`
+    );
+    if (!ok) { setCloudStatus('キャンセルしました', 'info'); return; }
+
+    if (data.records) { records = data.records; localStorage.setItem('keisuke47_records', JSON.stringify(records)); }
+    if (data.tripPlans) { tripPlans = data.tripPlans; localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans)); }
+    if (data.shioriData) { shioriData = data.shioriData; localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData)); }
+
+    updateAll();
+    setCloudStatus('✅ 復元完了！', 'success');
+  } catch(e) {
+    console.error(e);
+    setCloudStatus('❌ 取得失敗：' + e.message, 'error');
+  }
+}
+
+// Restore saved cloud key on load
+function restoreCloudKey() {
+  const saved = localStorage.getItem('keisuke47_cloudkey');
+  const el = document.getElementById('cloudKey');
+  if (saved && el) el.value = saved;
+}
+
 // ===== Init =====
 loadData();
 loadTripPlans();
 loadShiori();
 updateAll();
+restoreCloudKey();
 </script>
 </body>
 </html>
