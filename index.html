@@ -1481,9 +1481,27 @@
   <div class="view" id="view-shiori">
     <div class="shiori-header">
       <h1>📖 たびのしおり</h1>
-      <button class="shiori-add-btn" onclick="openShioriModal()">＋ しおりを作る</button>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+        <button class="shiori-add-btn" style="margin-top:0" onclick="openShioriModal()">＋ しおりを作る</button>
+        <button class="shiori-add-btn" style="margin-top:0" onclick="openShioriImportModal()">📥 テキストから取り込み</button>
+      </div>
     </div>
     <div id="shioriList" class="shiori-list"></div>
+  </div>
+
+  <!-- Shiori Import Modal -->
+  <div class="shiori-modal-overlay" id="shioriImportOverlay" onclick="if(event.target===this)closeShioriImportModal()">
+    <div class="shiori-modal" style="max-width:380px">
+      <h2>📥 テキストから取り込み</h2>
+      <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;line-height:1.5">
+        旅行プランのテキストを貼り付けてね。日付・スケジュールを自動でしおりにするで！
+      </p>
+      <textarea id="shioriImportText" style="width:100%;min-height:200px;padding:10px;border:1.5px solid #EDE8E3;border-radius:12px;font-family:inherit;font-size:12px;background:#FDFBF9;outline:none;resize:vertical" placeholder="旅行プランをここに貼り付け..."></textarea>
+      <div class="shiori-modal-btns">
+        <button class="btn-cancel" onclick="closeShioriImportModal()">やめる</button>
+        <button class="btn-create" onclick="importShioriFromText()">取り込む！</button>
+      </div>
+    </div>
   </div>
 
   <!-- Shiori Detail -->
@@ -2487,6 +2505,13 @@ function renderShioriDetail(shiori) {
 
   html += `<button class="shiori-add-day-btn" onclick="addShioriDay('${shiori.id}')">＋ 日を追加</button>`;
 
+  if (shiori.importedMemo) {
+    html += `<div style="margin:0 16px 24px;background:var(--card);border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
+      <div style="font-weight:900;font-size:14px;margin-bottom:8px">📝 メモ</div>
+      <div style="font-size:13px;line-height:1.6;white-space:pre-wrap;color:var(--text-light)">${escapeHtml(shiori.importedMemo)}</div>
+    </div>`;
+  }
+
   detail.innerHTML = html;
 }
 
@@ -2561,6 +2586,145 @@ function editShioriMeta(id) {
     saveShiori();
     renderShioriDetail(shiori);
   }
+}
+
+// ===== Shiori Import from Text =====
+function openShioriImportModal() {
+  document.getElementById('shioriImportText').value = '';
+  document.getElementById('shioriImportOverlay').classList.add('show');
+}
+
+function closeShioriImportModal() {
+  document.getElementById('shioriImportOverlay').classList.remove('show');
+}
+
+function importShioriFromText() {
+  const text = document.getElementById('shioriImportText').value.trim();
+  if (!text) { alert('テキストを貼り付けてね！'); return; }
+
+  const parsed = parseShioriText(text);
+  if (!parsed.days.length) {
+    alert('日付付きのスケジュールが見つからへんかった💦\n「📅 ◯月◯日」の形式で書いてね！');
+    return;
+  }
+
+  const shiori = {
+    id: Date.now().toString(),
+    title: parsed.title || '取り込んだ旅',
+    pref: parsed.pref || '',
+    startDate: parsed.startDate || (parsed.days[0]?.date) || '',
+    endDate: parsed.endDate || (parsed.days[parsed.days.length-1]?.date) || '',
+    days: parsed.days,
+    importedMemo: parsed.memo || ''
+  };
+
+  shioriData.unshift(shiori);
+  saveShiori();
+  closeShioriImportModal();
+  openShioriDetail(shiori.id);
+}
+
+function parseShioriText(text) {
+  const result = { title: '', pref: '', startDate: '', endDate: '', days: [], memo: '' };
+  const lines = text.split('\n');
+
+  // Try to find prefecture mentioned
+  for (const p of ALL_PREFS) {
+    if (text.includes(p)) { result.pref = p; break; }
+  }
+
+  // Extract date range from "日程：YYYY年M月D日(...)〜D日(...)" or similar
+  const rangeMatch = text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日[^〜~\-]*[〜~\-]+(?:(\d{4})年)?(?:(\d{1,2})月)?(\d{1,2})日/);
+  if (rangeMatch) {
+    const [, y1, m1, d1, y2, m2, d2] = rangeMatch;
+    const yy1 = parseInt(y1);
+    const mm1 = parseInt(m1);
+    const dd1 = parseInt(d1);
+    const yy2 = parseInt(y2 || y1);
+    const mm2 = parseInt(m2 || m1);
+    const dd2 = parseInt(d2);
+    result.startDate = `${yy1}-${String(mm1).padStart(2,'0')}-${String(dd1).padStart(2,'0')}`;
+    result.endDate = `${yy2}-${String(mm2).padStart(2,'0')}-${String(dd2).padStart(2,'0')}`;
+  }
+
+  // Title: try to find "目的：..." or use first heading
+  const purposeMatch = text.match(/目的[：:]\s*(.+)/);
+  if (purposeMatch) {
+    result.title = purposeMatch[1].trim().slice(0, 30);
+  }
+  if (!result.title && result.pref) {
+    result.title = result.pref + 'たび';
+  }
+
+  // Parse day sections marked with 📅
+  const baseYear = result.startDate ? parseInt(result.startDate.slice(0,4)) : new Date().getFullYear();
+  const sections = [];
+  let current = null;
+  let inMemo = false;
+  const memoLines = [];
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    // Day header: 📅 10日（土） or 📅 10月10日（土） etc.
+    const dayMatch = line.match(/📅\s*(?:(\d{1,2})月)?(\d{1,2})日/);
+    if (dayMatch) {
+      inMemo = false;
+      const month = dayMatch[1] ? parseInt(dayMatch[1]) : (result.startDate ? parseInt(result.startDate.slice(5,7)) : null);
+      const day = parseInt(dayMatch[2]);
+      let dateStr = '';
+      if (month && day) {
+        dateStr = `${baseYear}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      }
+      current = { date: dateStr, items: [] };
+      sections.push(current);
+      continue;
+    }
+
+    // Memo section
+    if (line.match(/^\*?\*?メモ\*?\*?$/) || line === 'メモ') {
+      inMemo = true;
+      current = null;
+      continue;
+    }
+
+    if (inMemo) {
+      memoLines.push(line.replace(/^[-・]\s*/, ''));
+      continue;
+    }
+
+    // Schedule item under a day
+    if (current) {
+      // Strip leading bullet
+      const cleaned = line.replace(/^[-・*]\s*/, '');
+      if (!cleaned) continue;
+
+      // Parse time: "11:30 ..." or "9:30〜11:30 ..." or "〜11:00 ..."
+      const timeMatch = cleaned.match(/^(?:〜|~)?(\d{1,2}:\d{2})(?:\s*[〜~\-]\s*\d{1,2}:\d{2})?\s*(.*)$/);
+      if (timeMatch) {
+        const time = timeMatch[1];
+        const rest = timeMatch[2].trim();
+        // Pad time to HH:MM
+        const [h, m] = time.split(':');
+        const paddedTime = `${String(h).padStart(2,'0')}:${m}`;
+        current.items.push({ time: paddedTime, place: rest, url: '', memo: '' });
+      } else {
+        // No time, treat as place
+        current.items.push({ time: '', place: cleaned, url: '', memo: '' });
+      }
+    }
+  }
+
+  // Filter out empty days, ensure at least one item per day
+  result.days = sections.filter(s => s.items.length > 0).map(s => ({
+    date: s.date,
+    items: s.items.length ? s.items : [{ time: '', place: '', url: '', memo: '' }]
+  }));
+
+  result.memo = memoLines.join('\n');
+
+  return result;
 }
 
 // ===== Plan ↔ Shiori Link =====
