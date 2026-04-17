@@ -1489,6 +1489,24 @@
     <div id="shioriList" class="shiori-list"></div>
   </div>
 
+  <!-- Link Plan Modal -->
+  <div class="shiori-modal-overlay" id="linkPlanOverlay" onclick="if(event.target===this)closeLinkPlanModal()">
+    <div class="shiori-modal">
+      <h2>📅 けいかくと紐付け</h2>
+      <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;line-height:1.5">
+        このしおりをどのけいかくと紐付ける？
+      </p>
+      <label>年</label>
+      <select id="linkPlanYear" onchange="renderLinkPlanTrips()"></select>
+      <label>たび</label>
+      <select id="linkPlanTrip"></select>
+      <div class="shiori-modal-btns">
+        <button class="btn-cancel" onclick="closeLinkPlanModal()">やめる</button>
+        <button class="btn-create" onclick="confirmLinkPlan()">紐付ける！</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Shiori Import Modal -->
   <div class="shiori-modal-overlay" id="shioriImportOverlay" onclick="if(event.target===this)closeShioriImportModal()">
     <div class="shiori-modal" style="max-width:380px">
@@ -2446,6 +2464,10 @@ function renderShioriDetail(shiori) {
     ? `<div style="font-size:11px;margin-top:6px;opacity:0.85">📅 ${planInfo.year}年 たび${planInfo.idx + 1} とリンク中</div>`
     : '';
 
+  const linkBtn = planInfo
+    ? `<button onclick="unlinkShioriFromPlan('${shiori.id}')">🔓 リンク解除</button>`
+    : `<button onclick="openLinkPlanModal('${shiori.id}')">📅 けいかくと紐付け</button>`;
+
   let html = `
     <div class="shiori-detail-header">
       <button class="shiori-back-btn" onclick="backToShioriList()">← もどる</button>
@@ -2453,6 +2475,7 @@ function renderShioriDetail(shiori) {
       <div class="shiori-detail-date">${dateText}</div>
       ${planLink}
       <div class="shiori-detail-actions">
+        ${linkBtn}
         <button onclick="editShioriMeta('${shiori.id}')">✏️ 編集</button>
         <button onclick="deleteShiori('${shiori.id}')">🗑 削除</button>
       </div>
@@ -2795,6 +2818,90 @@ function createShioriFromPlan(year, idx) {
 function openShioriFromPlan(shioriId) {
   switchNav('shiori');
   openShioriDetail(shioriId);
+}
+
+// ===== Link existing shiori to plan =====
+let _linkingShioriId = null;
+
+function openLinkPlanModal(shioriId) {
+  _linkingShioriId = shioriId;
+  const shiori = shioriData.find(s => s.id === shioriId);
+  // Default year from shiori's startDate
+  const defaultYear = shiori?.startDate ? parseInt(shiori.startDate.slice(0,4)) : new Date().getFullYear();
+
+  const yearSel = document.getElementById('linkPlanYear');
+  yearSel.innerHTML = '';
+  for (let y = 2026; y <= 2036; y++) {
+    yearSel.innerHTML += `<option value="${y}" ${y === defaultYear ? 'selected' : ''}>${y}年（けいすけ${y - 2024}さい）</option>`;
+  }
+  renderLinkPlanTrips();
+  document.getElementById('linkPlanOverlay').classList.add('show');
+}
+
+function renderLinkPlanTrips() {
+  const year = parseInt(document.getElementById('linkPlanYear').value);
+  ensureYearPlans(year);
+  const trips = tripPlans[year];
+  const tripSel = document.getElementById('linkPlanTrip');
+  const emojis = ['🚗','✈️','🚄','🚢','🏕'];
+  tripSel.innerHTML = trips.map((t, i) => {
+    const label = `${emojis[i]} たび${i+1}` +
+      (t.pref ? `：${t.pref}` : '') +
+      (t.month ? `（${t.month}月）` : '') +
+      (t.shioriId ? '【🔗紐付済】' : '');
+    return `<option value="${i}">${label}</option>`;
+  }).join('');
+}
+
+function closeLinkPlanModal() {
+  document.getElementById('linkPlanOverlay').classList.remove('show');
+  _linkingShioriId = null;
+}
+
+function confirmLinkPlan() {
+  const shiori = shioriData.find(s => s.id === _linkingShioriId);
+  if (!shiori) { closeLinkPlanModal(); return; }
+  const year = parseInt(document.getElementById('linkPlanYear').value);
+  const idx = parseInt(document.getElementById('linkPlanTrip').value);
+  ensureYearPlans(year);
+  const trip = tripPlans[year][idx];
+
+  // If target trip already has a different shiori, confirm overwrite
+  if (trip.shioriId && trip.shioriId !== shiori.id) {
+    if (!confirm('このたびには別のしおりが紐付いてるで！上書きする？')) return;
+    // Unlink old shiori from this plan
+    const oldShiori = shioriData.find(s => s.id === trip.shioriId);
+    if (oldShiori) delete oldShiori.linkedPlan;
+  }
+
+  // Remove this shiori's old plan link if any
+  if (shiori.linkedPlan) {
+    const oldTrip = tripPlans[shiori.linkedPlan.year]?.[shiori.linkedPlan.idx];
+    if (oldTrip) delete oldTrip.shioriId;
+  }
+
+  // Set new link
+  trip.shioriId = shiori.id;
+  shiori.linkedPlan = { year, idx };
+  // Auto-fill plan pref if empty
+  if (!trip.pref && shiori.pref) trip.pref = shiori.pref;
+
+  saveShiori();
+  saveTripPlans();
+  closeLinkPlanModal();
+  renderShioriDetail(shiori);
+}
+
+function unlinkShioriFromPlan(shioriId) {
+  const shiori = shioriData.find(s => s.id === shioriId);
+  if (!shiori || !shiori.linkedPlan) return;
+  if (!confirm('リンクを解除する？（しおりとけいかくは消えへんで）')) return;
+  const trip = tripPlans[shiori.linkedPlan.year]?.[shiori.linkedPlan.idx];
+  if (trip) delete trip.shioriId;
+  delete shiori.linkedPlan;
+  saveShiori();
+  saveTripPlans();
+  renderShioriDetail(shiori);
 }
 
 function getLinkedPlanInfo(shiori) {
