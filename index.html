@@ -2494,8 +2494,18 @@ function renderShioriDetail(shiori) {
     `;
 
     day.items.forEach((item, itemIdx) => {
+      const isFirst = itemIdx === 0;
+      const isLast = itemIdx === day.items.length - 1;
       html += `
         <div class="shiori-item">
+          <div class="shiori-item-row" style="justify-content:space-between">
+            <span style="font-size:11px;color:var(--text-light);font-weight:700">No.${itemIdx + 1}</span>
+            <div style="display:flex;gap:4px">
+              <button class="shiori-item-delete" ${isFirst ? 'disabled style="opacity:0.2"' : ''} onclick="moveShioriItem('${shiori.id}',${dayIdx},${itemIdx},-1)">⬆</button>
+              <button class="shiori-item-delete" ${isLast ? 'disabled style="opacity:0.2"' : ''} onclick="moveShioriItem('${shiori.id}',${dayIdx},${itemIdx},1)">⬇</button>
+              <button class="shiori-item-delete" onclick="removeShioriItem('${shiori.id}',${dayIdx},${itemIdx})">🗑</button>
+            </div>
+          </div>
           <div class="shiori-item-row">
             <span class="shiori-item-icon">⏰</span>
             <input type="time" class="shiori-item-input time-input" value="${item.time}"
@@ -2503,7 +2513,6 @@ function renderShioriDetail(shiori) {
             <span class="shiori-item-icon">📍</span>
             <input type="text" class="shiori-item-input" placeholder="場所" value="${escapeHtml(item.place)}"
               onchange="updateShioriItem('${shiori.id}',${dayIdx},${itemIdx},'place',this.value)">
-            <button class="shiori-item-delete" onclick="removeShioriItem('${shiori.id}',${dayIdx},${itemIdx})">🗑</button>
           </div>
           <div class="shiori-item-row">
             <span class="shiori-item-icon">🔗</span>
@@ -2569,8 +2578,23 @@ function addShioriItem(id, dayIdx) {
 function removeShioriItem(id, dayIdx, itemIdx) {
   const shiori = shioriData.find(s => s.id === id);
   if (!shiori) return;
-  if (shiori.days[dayIdx].items.length <= 1) return;
-  shiori.days[dayIdx].items.splice(itemIdx, 1);
+  if (shiori.days[dayIdx].items.length <= 1) {
+    // Keep at least one empty placeholder
+    shiori.days[dayIdx].items = [{ time: '', place: '', url: '', memo: '' }];
+  } else {
+    shiori.days[dayIdx].items.splice(itemIdx, 1);
+  }
+  saveShiori();
+  renderShioriDetail(shiori);
+}
+
+function moveShioriItem(id, dayIdx, itemIdx, direction) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  const items = shiori.days[dayIdx].items;
+  const newIdx = itemIdx + direction;
+  if (newIdx < 0 || newIdx >= items.length) return;
+  [items[itemIdx], items[newIdx]] = [items[newIdx], items[itemIdx]];
   saveShiori();
   renderShioriDetail(shiori);
 }
