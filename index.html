@@ -3550,7 +3550,7 @@ function importShioriFromText() {
 
   const parsed = parseShioriText(text);
   if (!parsed.days.length) {
-    alert('日付付きのスケジュールが見つからへんかった💦\n「📅 ◯月◯日」の形式で書いてね！');
+    alert('日付付きのスケジュールが見つからへんかった💦\n\n対応してる形式：\n・10月10日\n・10/10\n・1日目\n・Day 1\n・📅 10月10日\n\n見出しっぽく書いてね（行頭に「#」「■」「-」もOK）');
     return;
   }
 
@@ -3613,15 +3613,73 @@ function parseShioriText(text) {
     const line = rawLine.trim();
     if (!line) continue;
 
-    // Day header: 📅 10日（土） or 📅 10月10日（土） etc.
-    const dayMatch = line.match(/📅\s*(?:(\d{1,2})月)?(\d{1,2})日/);
-    if (dayMatch) {
+    // Day header: try multiple formats
+    // 1) 📅 / 🗓 / ## / ### / ■ / ▼ / 【 prefixed lines with date
+    // 2) ◯月◯日, ◯/◯, M月D日(曜), 1日目, Day 1
+    let dayMatch = null;
+    let isDayHeader = false;
+
+    // Strip common header prefixes for matching
+    const headerStripped = line.replace(/^[#＃■◆●▼▽◯☆★※\*\-\s]*[📅🗓📆🌟⭐]?\s*/, '').replace(/^【|】$/g, '');
+
+    // Format A: M月D日 (with optional year and weekday suffix)
+    let m = headerStripped.match(/^(?:(\d{4})年)?(\d{1,2})月(\d{1,2})日(?:\s*[（(].*?[)）])?[\s:：]*$/);
+    if (m) {
+      isDayHeader = true;
+      dayMatch = { year: m[1], month: m[2], day: m[3] };
+    }
+
+    // Format B: M/D or YYYY/M/D
+    if (!isDayHeader) {
+      m = headerStripped.match(/^(?:(\d{4})[\/\-])?(\d{1,2})[\/\-](\d{1,2})(?:\s*[（(].*?[)）])?[\s:：]*$/);
+      if (m) {
+        isDayHeader = true;
+        dayMatch = { year: m[1], month: m[2], day: m[3] };
+      }
+    }
+
+    // Format C: N日目 (without date)
+    if (!isDayHeader) {
+      m = headerStripped.match(/^(\d{1,2})日目(?:[:：\s].*)?$/);
+      if (m) {
+        isDayHeader = true;
+        dayMatch = { dayIndex: parseInt(m[1]) };
+      }
+    }
+
+    // Format D: Day N
+    if (!isDayHeader) {
+      m = headerStripped.match(/^Day\s*(\d{1,2})(?:[:：\s].*)?$/i);
+      if (m) {
+        isDayHeader = true;
+        dayMatch = { dayIndex: parseInt(m[1]) };
+      }
+    }
+
+    // Format E: Original 📅 format anywhere in line (legacy)
+    if (!isDayHeader) {
+      m = line.match(/[📅🗓📆]\s*(?:(\d{1,2})月)?(\d{1,2})日/);
+      if (m) {
+        isDayHeader = true;
+        dayMatch = { month: m[1], day: m[2] };
+      }
+    }
+
+    if (isDayHeader) {
       inMemo = false;
-      const month = dayMatch[1] ? parseInt(dayMatch[1]) : (result.startDate ? parseInt(result.startDate.slice(5,7)) : null);
-      const day = parseInt(dayMatch[2]);
       let dateStr = '';
-      if (month && day) {
-        dateStr = `${baseYear}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      if (dayMatch.year || dayMatch.month) {
+        const year = dayMatch.year ? parseInt(dayMatch.year) : baseYear;
+        const month = dayMatch.month ? parseInt(dayMatch.month) : (result.startDate ? parseInt(result.startDate.slice(5,7)) : null);
+        const day = dayMatch.day ? parseInt(dayMatch.day) : null;
+        if (month && day) {
+          dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        }
+      } else if (dayMatch.dayIndex && result.startDate) {
+        // Calculate from start date + offset
+        const start = new Date(result.startDate);
+        start.setDate(start.getDate() + dayMatch.dayIndex - 1);
+        dateStr = start.toISOString().split('T')[0];
       }
       current = { date: dateStr, items: [] };
       sections.push(current);
