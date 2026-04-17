@@ -1061,6 +1061,128 @@
       opacity: 0.4;
     }
 
+    .shiori-item-photos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .shiori-item-photo-wrap {
+      position: relative;
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .shiori-item-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .shiori-item-photo-remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .shiori-item-photo-add {
+      width: 70px;
+      height: 70px;
+      border: 2px dashed #EDE8E3;
+      border-radius: 8px;
+      background: #FDFBF9;
+      color: var(--text-light);
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+    }
+
+    .shiori-blog-btn {
+      display: block;
+      margin: 12px auto 24px;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+    }
+
+    .blog-modal {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      width: 95%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+
+    .blog-preview {
+      background: #FDFBF9;
+      border: 1.5px solid #EDE8E3;
+      border-radius: 12px;
+      padding: 16px;
+      max-height: 50vh;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .blog-preview h1 { font-size: 18px; margin: 8px 0; }
+    .blog-preview h2 { font-size: 16px; margin: 16px 0 8px; color: var(--pink); }
+    .blog-preview h3 { font-size: 14px; margin: 12px 0 4px; }
+    .blog-preview img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
+    .blog-preview p { margin: 4px 0; }
+
+    .blog-format-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .blog-format-tab {
+      flex: 1;
+      padding: 8px;
+      border: 1.5px solid #EDE8E3;
+      border-radius: 10px;
+      background: white;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+
+    .blog-format-tab.active {
+      background: var(--pink);
+      color: white;
+      border-color: var(--pink);
+    }
+
     .shiori-add-item-btn {
       width: 100%;
       padding: 10px;
@@ -1487,6 +1609,29 @@
       </div>
     </div>
     <div id="shioriList" class="shiori-list"></div>
+  </div>
+
+  <!-- Blog Export Modal -->
+  <div class="shiori-modal-overlay" id="blogOverlay" onclick="if(event.target===this)closeBlogModal()">
+    <div class="blog-modal">
+      <h2 style="font-size:16px;font-weight:900;margin-bottom:12px;text-align:center">📝 ブログ記事プレビュー</h2>
+      <div class="blog-format-tabs">
+        <button class="blog-format-tab active" id="blogTabPreview" onclick="switchBlogFormat('preview')">プレビュー</button>
+        <button class="blog-format-tab" id="blogTabMd" onclick="switchBlogFormat('md')">Markdown</button>
+        <button class="blog-format-tab" id="blogTabHtml" onclick="switchBlogFormat('html')">HTML</button>
+      </div>
+      <div id="blogPreviewArea" class="blog-preview"></div>
+      <textarea id="blogTextArea" style="display:none;width:100%;min-height:300px;padding:12px;border:1.5px solid #EDE8E3;border-radius:12px;font-family:monospace;font-size:11px;background:#FDFBF9;outline:none;resize:vertical"></textarea>
+      <div class="shiori-modal-btns">
+        <button class="btn-cancel" onclick="closeBlogModal()">とじる</button>
+        <button class="btn-create" onclick="copyBlogContent()">📋 コピー</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Fullscreen -->
+  <div id="photoFullscreen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:200;justify-content:center;align-items:center;padding:20px" onclick="this.style.display='none'">
+    <img id="photoFullscreenImg" style="max-width:100%;max-height:100%;border-radius:12px">
   </div>
 
   <!-- Link Plan Modal -->
@@ -2525,6 +2670,17 @@ function renderShioriDetail(shiori) {
             <input type="text" class="shiori-item-input" placeholder="メモ" value="${escapeHtml(item.memo)}"
               onchange="updateShioriItem('${shiori.id}',${dayIdx},${itemIdx},'memo',this.value)">
           </div>
+          <div class="shiori-item-photos">
+            ${(item.photos || []).map((src, pi) => `
+              <div class="shiori-item-photo-wrap">
+                <img src="${src}" onclick="openPhotoFullscreen('${src.replace(/'/g, "\\'")}')">
+                <button class="shiori-item-photo-remove" onclick="removeShioriItemPhoto('${shiori.id}',${dayIdx},${itemIdx},${pi})">×</button>
+              </div>
+            `).join('')}
+            <button class="shiori-item-photo-add" onclick="document.getElementById('shioriPhotoInput-${dayIdx}-${itemIdx}').click()">＋</button>
+            <input type="file" id="shioriPhotoInput-${dayIdx}-${itemIdx}" accept="image/*" multiple style="display:none"
+              onchange="addShioriItemPhotos('${shiori.id}',${dayIdx},${itemIdx},event)">
+          </div>
         </div>
       `;
     });
@@ -2536,6 +2692,7 @@ function renderShioriDetail(shiori) {
   });
 
   html += `<button class="shiori-add-day-btn" onclick="addShioriDay('${shiori.id}')">＋ 日を追加</button>`;
+  html += `<button class="shiori-blog-btn" onclick="openBlogModal('${shiori.id}')">📝 ブログ記事として書き出し</button>`;
 
   if (shiori.importedMemo) {
     html += `<div style="margin:0 16px 24px;background:var(--card);border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
@@ -2586,6 +2743,181 @@ function removeShioriItem(id, dayIdx, itemIdx) {
   }
   saveShiori();
   renderShioriDetail(shiori);
+}
+
+function addShioriItemPhotos(id, dayIdx, itemIdx, e) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  const item = shiori.days[dayIdx].items[itemIdx];
+  if (!item.photos) item.photos = [];
+
+  const files = Array.from(e.target.files);
+  let pending = files.length;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > MAX) { h = h * MAX / w; w = MAX; } }
+        else { if (h > MAX) { w = w * MAX / h; h = MAX; } }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        item.photos.push(canvas.toDataURL('image/jpeg', 0.75));
+        pending--;
+        if (pending === 0) {
+          try {
+            saveShiori();
+            renderShioriDetail(shiori);
+          } catch(err) {
+            alert('写真の保存に失敗💦 容量オーバーかも');
+            console.error(err);
+          }
+        }
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function removeShioriItemPhoto(id, dayIdx, itemIdx, photoIdx) {
+  const shiori = shioriData.find(s => s.id === id);
+  if (!shiori) return;
+  const item = shiori.days[dayIdx].items[itemIdx];
+  if (!item.photos) return;
+  item.photos.splice(photoIdx, 1);
+  saveShiori();
+  renderShioriDetail(shiori);
+}
+
+function openPhotoFullscreen(src) {
+  document.getElementById('photoFullscreenImg').src = src;
+  document.getElementById('photoFullscreen').style.display = 'flex';
+}
+
+// ===== Blog Export =====
+let _blogShioriId = null;
+let _blogFormat = 'preview';
+
+function openBlogModal(id) {
+  _blogShioriId = id;
+  _blogFormat = 'preview';
+  document.getElementById('blogOverlay').classList.add('show');
+  switchBlogFormat('preview');
+}
+
+function closeBlogModal() {
+  document.getElementById('blogOverlay').classList.remove('show');
+  _blogShioriId = null;
+}
+
+function switchBlogFormat(fmt) {
+  _blogFormat = fmt;
+  document.getElementById('blogTabPreview').classList.toggle('active', fmt === 'preview');
+  document.getElementById('blogTabMd').classList.toggle('active', fmt === 'md');
+  document.getElementById('blogTabHtml').classList.toggle('active', fmt === 'html');
+
+  const shiori = shioriData.find(s => s.id === _blogShioriId);
+  if (!shiori) return;
+
+  const previewArea = document.getElementById('blogPreviewArea');
+  const textArea = document.getElementById('blogTextArea');
+
+  if (fmt === 'preview') {
+    previewArea.style.display = 'block';
+    textArea.style.display = 'none';
+    previewArea.innerHTML = generateBlogHtml(shiori);
+  } else if (fmt === 'md') {
+    previewArea.style.display = 'none';
+    textArea.style.display = 'block';
+    textArea.value = generateBlogMarkdown(shiori);
+  } else {
+    previewArea.style.display = 'none';
+    textArea.style.display = 'block';
+    textArea.value = generateBlogHtml(shiori);
+  }
+}
+
+function copyBlogContent() {
+  const shiori = shioriData.find(s => s.id === _blogShioriId);
+  if (!shiori) return;
+  const content = _blogFormat === 'md'
+    ? generateBlogMarkdown(shiori)
+    : generateBlogHtml(shiori);
+  navigator.clipboard.writeText(content).then(() => {
+    alert('コピーした！📋');
+  }).catch(() => {
+    alert('コピー失敗💦 テキストを長押しでコピーしてね');
+  });
+}
+
+function generateBlogHtml(shiori) {
+  const dateText = shiori.startDate && shiori.endDate
+    ? `${formatShioriDateFull(shiori.startDate)} 〜 ${formatShioriDateFull(shiori.endDate)}`
+    : '';
+  let html = `<h1>${escapeHtml(shiori.title)}</h1>`;
+  if (shiori.pref) html += `<p>📍 ${escapeHtml(shiori.pref)}</p>`;
+  if (dateText) html += `<p>📅 ${dateText}</p>`;
+
+  shiori.days.forEach((day, dayIdx) => {
+    const dateLabel = day.date ? formatShioriDateFull(day.date) : '';
+    html += `<h2>🌟 ${dayIdx + 1}日目${dateLabel ? '：' + dateLabel : ''}</h2>`;
+
+    day.items.forEach(item => {
+      if (!item.time && !item.place && !item.memo && (!item.photos || !item.photos.length)) return;
+      html += `<h3>${item.time ? '⏰ ' + item.time + '　' : ''}${escapeHtml(item.place || '')}</h3>`;
+      if (item.memo) html += `<p>${escapeHtml(item.memo)}</p>`;
+      if (item.url) html += `<p><a href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.url)}</a></p>`;
+      if (item.photos && item.photos.length) {
+        item.photos.forEach(src => {
+          html += `<img src="${src}" alt="">`;
+        });
+      }
+    });
+  });
+
+  if (shiori.importedMemo) {
+    html += `<h2>📝 メモ</h2><p>${escapeHtml(shiori.importedMemo).replace(/\n/g,'<br>')}</p>`;
+  }
+
+  return html;
+}
+
+function generateBlogMarkdown(shiori) {
+  const dateText = shiori.startDate && shiori.endDate
+    ? `${formatShioriDateFull(shiori.startDate)} 〜 ${formatShioriDateFull(shiori.endDate)}`
+    : '';
+  let md = `# ${shiori.title}\n\n`;
+  if (shiori.pref) md += `📍 ${shiori.pref}\n\n`;
+  if (dateText) md += `📅 ${dateText}\n\n`;
+
+  shiori.days.forEach((day, dayIdx) => {
+    const dateLabel = day.date ? formatShioriDateFull(day.date) : '';
+    md += `## 🌟 ${dayIdx + 1}日目${dateLabel ? '：' + dateLabel : ''}\n\n`;
+
+    day.items.forEach(item => {
+      if (!item.time && !item.place && !item.memo && (!item.photos || !item.photos.length)) return;
+      md += `### ${item.time ? '⏰ ' + item.time + '　' : ''}${item.place || ''}\n\n`;
+      if (item.memo) md += `${item.memo}\n\n`;
+      if (item.url) md += `[${item.url}](${item.url})\n\n`;
+      if (item.photos && item.photos.length) {
+        item.photos.forEach((src, i) => {
+          md += `![photo${i+1}](${src})\n\n`;
+        });
+      }
+    });
+  });
+
+  if (shiori.importedMemo) {
+    md += `## 📝 メモ\n\n${shiori.importedMemo}\n\n`;
+  }
+
+  return md;
 }
 
 function moveShioriItem(id, dayIdx, itemIdx, direction) {
