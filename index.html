@@ -3116,6 +3116,138 @@ JR四国お問い合わせ：087-825-1626
   };
 }
 
+function seedMidorigaokaShiori() {
+  const SEED_ID = 'seed-osaka-midorigaoka-2026';
+  try {
+    if (localStorage.getItem('keisuke47_seed_osaka_midorigaoka')) return;
+    if (shioriData.some(s => s.id === SEED_ID)) {
+      localStorage.setItem('keisuke47_seed_osaka_midorigaoka', '1');
+      return;
+    }
+    shioriData.unshift(buildMidorigaokaShiori(SEED_ID));
+    saveShiori();
+    localStorage.setItem('keisuke47_seed_osaka_midorigaoka', '1');
+  } catch (e) {}
+}
+
+// クラウド取り込み後など、緑地公園しおりが無ければ足し直す
+function ensureMidorigaokaSeed() {
+  const SEED_ID = 'seed-osaka-midorigaoka-2026';
+  if (!shioriData.some(s => s.id === SEED_ID)) {
+    shioriData.unshift(buildMidorigaokaShiori(SEED_ID));
+  }
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_osaka_midorigaoka', '1');
+}
+
+function buildMidorigaokaShiori(id) {
+  const it = (time, place, url, memo) => ({ time, place, url: url || '', memo: memo || '' });
+  return {
+    id,
+    title: 'けいすけと大阪・緑地公園たび🎶',
+    pref: '大阪',
+    startDate: '2026-10-10',
+    endDate: '2026-10-12',
+    days: [
+      {
+        date: '2026-10-10',
+        items: [
+          it('10:50', '米原→新大阪', '', '新幹線20分🚄'),
+          it('11:00', '新大阪駅→Merry momo', '', '徒歩8分'),
+          it('11:00', 'Merry momoでランチ🍴', '', '1時間'),
+          it('12:00', '西中島南方→緑地公園駅', '', '電車30分＋乗換10分🚃'),
+          it('12:40', '緑地公園駅→宿', '', '徒歩11分'),
+          it('13:00', 'チェックイン', '', ''),
+          it('13:15', 'けいすけ昼寝💤', '', '1時間45分'),
+          it('15:00', '宿→緑地公園駅', '', '徒歩11分'),
+          it('15:15', '緑地公園駅→野外音楽堂', '', '徒歩10分'),
+          it('15:45', 'OPEN／ワンマン公演🎶', '', ''),
+          it('16:30', 'START🎤', '', ''),
+          it('18:30', 'タクシーで宿へ・夜ごはん🍽️', '', 'タクシー10分')
+        ]
+      },
+      {
+        date: '2026-10-11',
+        items: [
+          it('08:00', '朝ごはん🍞', '', '宿・30分'),
+          it('08:30', '宿→hatt緑地公園', '', '徒歩15分'),
+          it('10:00', 'hatt緑地公園で遊ぶ🎡', '', '1時間30分'),
+          it('11:30', 'hatt内で軽めランチ🍴', '', '30分'),
+          it('12:00', 'hatt→宿', '', '徒歩15分'),
+          it('12:20', 'けいすけ昼寝💤', '', '2時間'),
+          it('14:14', '宿→緑地公園駅', '', '徒歩11分'),
+          it('14:25', '緑地公園駅→野外音楽堂', '', '徒歩10分'),
+          it('14:15', 'OPEN／対バン公演🎶', '', ''),
+          it('15:00', 'START🎤', '', ''),
+          it('18:00', '鴨と醸し鼓道でディナー🦆', '', '2時間'),
+          it('20:00', '鼓道→宿', '', '徒歩6分')
+        ]
+      },
+      {
+        date: '2026-10-12',
+        items: [
+          it('08:00', '朝ごはん🍞', '', '宿・30分'),
+          it('09:40', '宿→wellness vegetable', '', '徒歩10分'),
+          it('10:00', 'wellness vegetableでお買い物🛍️', '', '30分'),
+          it('10:30', 'wellness→宿', '', '徒歩10分'),
+          it('10:40', '荷物まとめ・チェックアウト', '', '20分'),
+          it('11:00', '宿→緑地公園駅', '', '徒歩11分'),
+          it('11:11', '緑地公園駅→千里中央駅', '', '電車6分🚃'),
+          it('11:20', '千里中央駅→アプサラカフェ', '', '徒歩5分'),
+          it('11:30', 'アプサラカフェでランチ🍴', '', '1時間'),
+          it('12:30', '千里中央駅→緑地公園駅', '', '電車6分🚃'),
+          it('12:40', '緑地公園駅→こどもの楽園', '', '徒歩8分'),
+          it('12:55', 'こどもの楽園で遊ぶ🎠', '', '1時間35分'),
+          it('14:30', 'こどもの楽園→緑地公園駅', '', '徒歩8分'),
+          it('14:40', '緑地公園駅→新大阪駅', '', '電車15分🚃'),
+          it('15:05', '新大阪でお土産🎁', '', '55分'),
+          it('16:00', '新大阪→米原で帰宅🚄', '', '新幹線20分')
+        ]
+      }
+    ]
+  };
+}
+
+function seedMidorigaokaPlan() {
+  try {
+    if (localStorage.getItem('keisuke47_seed_osaka_plan')) return;
+    ensureMidorigaokaPlan();
+  } catch (e) {}
+}
+
+// 2026年のけいかくに大阪の旅を登録し、緑地公園しおりと紐付ける
+function ensureMidorigaokaPlan() {
+  const SEED_ID = 'seed-osaka-midorigaoka-2026';
+  const YEAR = 2026;
+  ensureYearPlans(YEAR);
+  const trips = tripPlans[YEAR];
+
+  // すでに紐付いてたら何もしない（位置はそのまま尊重）
+  let idx = trips.findIndex(t => t.shioriId === SEED_ID);
+  if (idx === -1) {
+    // 空き枠（県もしおりも未設定）を探して入れる。無ければユーザーデータを守って何もしない
+    idx = trips.findIndex(t => !t.pref && !t.shioriId);
+    if (idx === -1) return;
+    trips[idx] = {
+      pref: '大阪',
+      month: '10',
+      spots: ['野外音楽堂でライブ🎶', 'hatt緑地公園であそぶ🎡', 'こどもの楽園であそぶ🎠'],
+      shioriId: SEED_ID
+    };
+  } else {
+    if (!trips[idx].pref) trips[idx].pref = '大阪';
+    if (!trips[idx].month) trips[idx].month = '10';
+  }
+
+  // しおり側にも双方向リンクを張る
+  const shiori = shioriData.find(s => s.id === SEED_ID);
+  if (shiori) shiori.linkedPlan = { year: YEAR, idx };
+
+  localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans));
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_osaka_plan', '1');
+}
+
 function openShioriModal() {
   // Populate prefecture select
   const sel = document.getElementById('shioriPref');
@@ -4525,6 +4657,8 @@ async function cloudAutoSync() {
       // クラウドの方が新しい → 取り込む
       applyBackupData(JSON.parse(snap.data().data));
       ensureAnpanmanSeed();
+      ensureMidorigaokaSeed();
+      ensureMidorigaokaPlan();
       localStorage.setItem('keisuke47_lastsync', snap.data().updatedAt || '');
       _initialSyncDone = true;
       await pushToCloud();   // アンパンマンしおり等を反映して保存し直す
@@ -4548,6 +4682,8 @@ loadData();
 loadTripPlans();
 loadShiori();
 seedAnpanmanShiori();
+seedMidorigaokaShiori();
+seedMidorigaokaPlan();
 updateAll();
 cloudAutoSync();
 </script>
