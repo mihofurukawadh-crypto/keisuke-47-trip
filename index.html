@@ -3260,6 +3260,8 @@ function renderShioriDetail(shiori) {
     </div>
   `;
 
+  html += `<button class="shiori-blog-btn" style="background:linear-gradient(135deg,var(--purple),var(--blue));margin-bottom:8px" onclick="openOverviewModal('${shiori.id}')">📋 まとめて見る</button>`;
+
   shiori.days.forEach((day, dayIdx) => {
     const dayLabel = `${dayIdx + 1}日目`;
     const dateLabel = day.date ? formatShioriDateFull(day.date) : '';
@@ -3333,7 +3335,6 @@ function renderShioriDetail(shiori) {
   // Weather section
   html += renderWeatherSection(shiori);
 
-  html += `<button class="shiori-blog-btn" style="background:linear-gradient(135deg,var(--purple),var(--blue));margin-bottom:8px" onclick="openOverviewModal('${shiori.id}')">📋 まとめて見る</button>`;
   html += `<button class="shiori-blog-btn" onclick="openBlogModal('${shiori.id}')">📝 ブログ記事として書き出し</button>`;
 
   if (shiori.importedMemo) {
