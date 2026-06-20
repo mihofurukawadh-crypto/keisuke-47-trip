@@ -3248,6 +3248,46 @@ function ensureMidorigaokaPlan() {
   localStorage.setItem('keisuke47_seed_osaka_plan', '1');
 }
 
+function seedAnpanmanPlan() {
+  try {
+    if (localStorage.getItem('keisuke47_seed_anpanman_plan')) return;
+    ensureAnpanmanPlan();
+  } catch (e) {}
+}
+
+// 2027年のけいかくに徳島の旅を登録し、アンパンマンしおりと紐付ける
+function ensureAnpanmanPlan() {
+  const SEED_ID = 'seed-anpanman-2027';
+  const YEAR = 2027;
+  ensureYearPlans(YEAR);
+  const trips = tripPlans[YEAR];
+
+  // すでに紐付いてたら何もしない（位置はそのまま尊重）
+  let idx = trips.findIndex(t => t.shioriId === SEED_ID);
+  if (idx === -1) {
+    // 空き枠（県もしおりも未設定）を探して入れる。無ければユーザーデータを守って何もしない
+    idx = trips.findIndex(t => !t.pref && !t.shioriId);
+    if (idx === -1) return;
+    trips[idx] = {
+      pref: '徳島',
+      month: '9',
+      spots: ['アンパンマンミュージアム🥖', 'アンパンマン列車にのる🚂', 'アンパンマンバスにのる🚌'],
+      shioriId: SEED_ID
+    };
+  } else {
+    if (!trips[idx].pref) trips[idx].pref = '徳島';
+    if (!trips[idx].month) trips[idx].month = '9';
+  }
+
+  // しおり側にも双方向リンクを張る
+  const shiori = shioriData.find(s => s.id === SEED_ID);
+  if (shiori) shiori.linkedPlan = { year: YEAR, idx };
+
+  localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans));
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_anpanman_plan', '1');
+}
+
 function openShioriModal() {
   // Populate prefecture select
   const sel = document.getElementById('shioriPref');
@@ -4659,6 +4699,7 @@ async function cloudAutoSync() {
       ensureAnpanmanSeed();
       ensureMidorigaokaSeed();
       ensureMidorigaokaPlan();
+      ensureAnpanmanPlan();
       localStorage.setItem('keisuke47_lastsync', snap.data().updatedAt || '');
       _initialSyncDone = true;
       await pushToCloud();   // アンパンマンしおり等を反映して保存し直す
@@ -4684,6 +4725,7 @@ loadShiori();
 seedAnpanmanShiori();
 seedMidorigaokaShiori();
 seedMidorigaokaPlan();
+seedAnpanmanPlan();
 updateAll();
 cloudAutoSync();
 </script>
