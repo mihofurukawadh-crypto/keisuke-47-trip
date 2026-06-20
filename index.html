@@ -2159,10 +2159,6 @@
       <span class="nav-icon">📖</span>
       しおり
     </button>
-    <button class="nav-btn" onclick="switchNav('stats')">
-      <span class="nav-icon">📊</span>
-      きろく
-    </button>
   </div>
 
 <script>
@@ -2536,7 +2532,7 @@ function switchNav(view) {
   currentNav = view;
   document.querySelectorAll('.nav-btn').forEach((b, i) => {
     b.classList.toggle('active',
-      (view === 'home' && i === 0) || (view === 'plan' && i === 1) || (view === 'shiori' && i === 2) || (view === 'stats' && i === 3));
+      (view === 'home' && i === 0) || (view === 'plan' && i === 1) || (view === 'shiori' && i === 2));
   });
 
   const homeEls = ['.header', '.progress-section', '.tab-nav'];
@@ -2558,19 +2554,11 @@ function switchNav(view) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
     homeEls.forEach(s => document.querySelector(s).style.display = '');
-    if (view === 'stats') {
-      const activeTab = document.querySelector('.tab-btn.active');
-      const isMap = activeTab && activeTab.textContent.includes('マップ');
-      document.getElementById('view-map').classList.toggle('active', isMap !== false);
-      document.getElementById('view-list').classList.toggle('active', isMap === false);
-      document.querySelector('.progress-section').scrollIntoView({ behavior: 'smooth' });
-    } else {
-      const activeTab = document.querySelector('.tab-btn.active');
-      const isMap = activeTab && activeTab.textContent.includes('マップ');
-      document.getElementById('view-map').classList.toggle('active', isMap !== false);
-      document.getElementById('view-list').classList.toggle('active', isMap === false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    const activeTab = document.querySelector('.tab-btn.active');
+    const isMap = activeTab && activeTab.textContent.includes('マップ');
+    document.getElementById('view-map').classList.toggle('active', isMap !== false);
+    document.getElementById('view-list').classList.toggle('active', isMap === false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
