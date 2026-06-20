@@ -3434,6 +3434,11 @@ function renderShioriDetail(shiori) {
 
   html += `<button class="shiori-blog-btn" style="background:linear-gradient(135deg,var(--purple),var(--blue));margin-bottom:8px" onclick="openOverviewModal('${shiori.id}')">📋 まとめて見る</button>`;
 
+  // 持ち物・予算・天気（まとめて見るのすぐ下に配置）
+  html += renderPackingSection(shiori);
+  html += renderBudgetSection(shiori);
+  html += renderWeatherSection(shiori);
+
   shiori.days.forEach((day, dayIdx) => {
     const dayLabel = `${dayIdx + 1}日目`;
     const dateLabel = day.date ? formatShioriDateFull(day.date) : '';
@@ -3499,13 +3504,6 @@ function renderShioriDetail(shiori) {
   });
 
   html += `<button class="shiori-add-day-btn" onclick="addShioriDay('${shiori.id}')">＋ 日を追加</button>`;
-
-  // Packing list section
-  html += renderPackingSection(shiori);
-  // Budget section
-  html += renderBudgetSection(shiori);
-  // Weather section
-  html += renderWeatherSection(shiori);
 
   html += `<button class="shiori-blog-btn" onclick="openBlogModal('${shiori.id}')">📝 ブログ記事として書き出し</button>`;
 
