@@ -1933,18 +1933,22 @@
   <div class="view" id="view-list">
     <div class="region-list" id="regionList"></div>
     <div class="backup-card" id="backupCard">
-      <h3>☁️ クラウド同期（PC↔スマホ）</h3>
-      <p class="backup-desc">合言葉を入れたら、スマホとPCで同じデータが見れる！家族みんなで共有もできるで✨</p>
-      <div style="margin:12px 0">
-        <label style="font-size:12px;font-weight:700;color:var(--text-light);display:block;margin-bottom:4px">合言葉（家族で同じものを使ってね）</label>
-        <input type="password" id="cloudKey" class="budget-input" placeholder="例：keisuke2024oct" style="margin-bottom:8px">
-        <div class="backup-btns">
-          <button class="backup-btn export" onclick="syncToCloud()">☁️ クラウドに保存</button>
-          <button class="backup-btn import" onclick="syncFromCloud()">📥 クラウドから取得</button>
+      <h3>☁️ クラウド同期</h3>
+      <p class="backup-desc">アプリを開くだけで、自動でクラウドに保存してるよ。合言葉はいらへん！もしスマホのデータが消えても、また開けば戻ってくるで✨</p>
+      <div id="autoSyncStatus" style="font-size:12px;color:var(--text-light);margin:12px 0;text-align:center;font-weight:700"></div>
+      <details style="margin-top:8px">
+        <summary style="font-size:12px;color:var(--text-light);cursor:pointer">🔧 詳細（昔の合言葉のデータを手動で取り込む）</summary>
+        <div style="margin:12px 0">
+          <label style="font-size:12px;font-weight:700;color:var(--text-light);display:block;margin-bottom:4px">合言葉（昔のデータを引っ越したいときだけ）</label>
+          <input type="password" id="cloudKey" class="budget-input" placeholder="例：keisuke2024oct" style="margin-bottom:8px">
+          <div class="backup-btns">
+            <button class="backup-btn export" onclick="syncToCloud()">☁️ クラウドに保存</button>
+            <button class="backup-btn import" onclick="syncFromCloud()">📥 クラウドから取得</button>
+          </div>
+          <div id="cloudStatus" style="font-size:11px;color:var(--text-light);margin-top:8px;text-align:center"></div>
         </div>
-        <div id="cloudStatus" style="font-size:11px;color:var(--text-light);margin-top:8px;text-align:center"></div>
-      </div>
-      <p class="backup-note">💡 合言葉は8文字以上、推測されにくいものに！家族にだけLINEなどで教えてね。<br>同じ合言葉を入れたデバイスで同じデータが見れます。</p>
+        <p class="backup-note">💡 普段はさわらなくてOK。昔べつの合言葉で保存していたデータを取り込みたいときだけ、ここに合言葉を入れて「📥 取得」してね。</p>
+      </details>
     </div>
 
     <div class="backup-card" id="backupCard2">
@@ -2251,6 +2255,7 @@ function loadData() {
 
 function saveData() {
   localStorage.setItem('keisuke47_records', JSON.stringify(records));
+  scheduleAutoSync();
 }
 
 // ===== Age Calculation =====
@@ -2594,6 +2599,7 @@ function loadTripPlans() {
 
 function saveTripPlans() {
   localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans));
+  scheduleAutoSync();
 }
 
 const ALL_PREFS = [
@@ -2928,6 +2934,7 @@ function loadShiori() {
 
 function saveShiori() {
   localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  scheduleAutoSync();
 }
 
 // ----- 初期しおり（アンパンマン大冒険）の登録 -----
@@ -2944,6 +2951,16 @@ function seedAnpanmanShiori() {
     saveShiori();
     localStorage.setItem('keisuke47_seed_anpanman', '1');
   } catch (e) {}
+}
+
+// クラウド取り込み後など、アンパンマンしおりが無ければ足し直す
+function ensureAnpanmanSeed() {
+  const SEED_ID = 'seed-anpanman-2027';
+  if (!shioriData.some(s => s.id === SEED_ID)) {
+    shioriData.unshift(buildAnpanmanShiori(SEED_ID));
+  }
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_anpanman', '1');
 }
 
 function buildAnpanmanShiori(id) {
@@ -4551,6 +4568,95 @@ function restoreCloudKey() {
   if (saved && el) el.value = saved;
 }
 
+// ===== 自動クラウド同期（合言葉いらず） =====
+// アプリ専用のキーをコードに埋め込み、開くだけで自動で読み込み・保存する。
+// 昔の合言葉のデータがあれば初回に引っ越す（読むだけ・昔のキーは消さない）。
+const DEFAULT_CLOUDKEY = 'mihokei_tabi_a9f3k27qd1';
+let _initialSyncDone = false;
+let _autoSyncTimer = null;
+let _autoSyncBusy = false;
+
+function applyBackupData(data) {
+  if (!data) return;
+  if (data.records)    { records    = data.records;    localStorage.setItem('keisuke47_records',   JSON.stringify(records)); }
+  if (data.tripPlans)  { tripPlans  = data.tripPlans;  localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans)); }
+  if (data.shioriData) { shioriData = data.shioriData; localStorage.setItem('keisuke47_shiori',    JSON.stringify(shioriData)); }
+}
+
+function setAutoSyncStatus(msg, type) {
+  const el = document.getElementById('autoSyncStatus');
+  if (!el) return;
+  const colors = { success: 'var(--green)', error: '#FF6B6B', loading: 'var(--blue)', info: 'var(--text-light)' };
+  el.style.color = colors[type] || colors.info;
+  el.textContent = msg;
+}
+
+async function pushToCloud() {
+  if (_autoSyncBusy) return;
+  _autoSyncBusy = true;
+  try {
+    const { db, doc, setDoc } = await initFirebase();
+    const t = new Date().toISOString();
+    await setDoc(doc(db, 'users', DEFAULT_CLOUDKEY), {
+      data: JSON.stringify(getBackupData()),
+      updatedAt: t
+    });
+    localStorage.setItem('keisuke47_lastsync', t);
+  } catch(e) {
+    console.error('autoSync push failed', e);
+  } finally {
+    _autoSyncBusy = false;
+  }
+}
+
+function scheduleAutoSync() {
+  if (!_initialSyncDone) return;
+  clearTimeout(_autoSyncTimer);
+  _autoSyncTimer = setTimeout(pushToCloud, 1500);
+}
+
+async function cloudAutoSync() {
+  try {
+    setAutoSyncStatus('☁️ 同期中…', 'loading');
+    const { db, doc, getDoc, setDoc } = await initFirebase();
+    const defRef = doc(db, 'users', DEFAULT_CLOUDKEY);
+    let snap = await getDoc(defRef);
+
+    // 初回：昔の合言葉のデータがあれば引っ越す（昔のキーは読むだけ・消さない）
+    if (!snap.exists()) {
+      const oldKey = localStorage.getItem('keisuke47_cloudkey');
+      if (oldKey && oldKey !== DEFAULT_CLOUDKEY) {
+        const oldSnap = await getDoc(doc(db, 'users', oldKey));
+        if (oldSnap.exists()) {
+          await setDoc(defRef, oldSnap.data());
+          snap = await getDoc(defRef);
+        }
+      }
+    }
+
+    const localTime = localStorage.getItem('keisuke47_lastsync') || '';
+    if (snap.exists() && (snap.data().updatedAt || '') > localTime) {
+      // クラウドの方が新しい → 取り込む
+      applyBackupData(JSON.parse(snap.data().data));
+      ensureAnpanmanSeed();
+      localStorage.setItem('keisuke47_lastsync', snap.data().updatedAt || '');
+      _initialSyncDone = true;
+      await pushToCloud();   // アンパンマンしおり等を反映して保存し直す
+      updateAll();
+      setAutoSyncStatus('✅ 最新に同期したよ（自動）', 'success');
+      return;
+    }
+    // ローカルの方が新しい / クラウド未作成 → 保存
+    _initialSyncDone = true;
+    await pushToCloud();
+    setAutoSyncStatus('✅ 自動バックアップ済み', 'success');
+  } catch(e) {
+    console.error('autoSync failed', e);
+    _initialSyncDone = true; // ローカルは引き続き使える
+    setAutoSyncStatus('⚠️ いま同期できへんかった（電波を確認してね）。データは端末に残ってるで', 'error');
+  }
+}
+
 // ===== Init =====
 loadData();
 loadTripPlans();
@@ -4558,6 +4664,7 @@ loadShiori();
 seedAnpanmanShiori();
 updateAll();
 restoreCloudKey();
+cloudAutoSync();
 </script>
 </body>
 </html>
