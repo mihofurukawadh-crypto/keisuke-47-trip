@@ -3315,6 +3315,186 @@ function ensureAnpanmanPlan() {
   localStorage.setItem('keisuke47_seed_anpanman_plan', '1');
 }
 
+function seedIzuShiori() {
+  const SEED_ID = 'seed-shizuoka-izu-2026';
+  try {
+    if (localStorage.getItem('keisuke47_seed_shizuoka_izu')) return;
+    if (shioriData.some(s => s.id === SEED_ID)) {
+      localStorage.setItem('keisuke47_seed_shizuoka_izu', '1');
+      return;
+    }
+    shioriData.unshift(buildIzuShiori(SEED_ID));
+    saveShiori();
+    localStorage.setItem('keisuke47_seed_shizuoka_izu', '1');
+  } catch (e) {}
+}
+
+// クラウド取り込み後など、伊豆しおりが無ければ足し直す
+function ensureIzuSeed() {
+  const SEED_ID = 'seed-shizuoka-izu-2026';
+  if (!shioriData.some(s => s.id === SEED_ID)) {
+    shioriData.unshift(buildIzuShiori(SEED_ID));
+  }
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_shizuoka_izu', '1');
+}
+
+function buildIzuShiori(id) {
+  const it = (time, place, url, memo) => ({ time, place, url: url || '', memo: memo || '' });
+  return {
+    id,
+    title: 'けいすけと伊豆高原たび🐻🍧',
+    pref: '静岡',
+    startDate: '2026-07-16',
+    endDate: '2026-07-18',
+    days: [
+      {
+        date: '2026-07-16',
+        items: [
+          it('08:50', '米原発（新幹線）🚄', '', 'こだま直通 約1時間50分／ひかり乗継 約1時間30分 ※時間は仮、スマートEXで要確認'),
+          it('10:45', '三島着・じいじばあばと合流🚗', '', 'ここから車移動'),
+          it('11:00', 'さわやか函南店で早めランチ🍔', '', '平日10:45開店直後ねらい／整理券制・予約不可。けいすけはおこさまメニュー（低アレルゲン）'),
+          it('12:15', '伊豆・村の駅（直売所・お土産）', '', 'けいすけはフルーツでひと口。Day2朝の食材も仕込む'),
+          it('13:15', '伊豆高原へドライブ🚗', '', '約1時間〜1時間15分・車内がけいすけの昼寝タイム💤'),
+          it('15:00', 'サンダンス・リゾート伊豆高原 チェックイン', '', 'IN15:00／伊豆高原駅から車10分'),
+          it('15:30', '伊豆テディベア・ミュージアム🐻', '', '八幡野・宿のすぐ近く・室内・最終入館16:30／トトロ＆ネコバス・けいすけ無料'),
+          it('16:45', '宿に戻ってひと休み・お風呂♨️', '', ''),
+          it('18:00', '夕食：手打そば 砂場 伊豆高原🍚', '', '富戸・座敷/掘りごたつ。けいすけはライス＋持参おかず（そば=小麦つなぎ・天ぷら衣NG）'),
+          it('19:30', '宿へ・就寝😴', '', '')
+        ]
+      },
+      {
+        date: '2026-07-17',
+        items: [
+          it('07:30', '起床・宿でゆっくり朝食🍙', '', '前日に村の駅などで仕込んだ地元食材で'),
+          it('09:00', '大室山リフトで山頂へ🚡', '', '片道6分・けいすけ無料（膝乗せ）。暑さ次第で景色スポットだけでもOK'),
+          it('09:45', '伊豆シャボテン動物公園🦫', '', '9:30開園・カピバラ・エサやり／温室や動物舎で日陰休憩・けいすけ無料'),
+          it('11:30', 'ふわふわかき氷 HELLO🍧', '', '大室高原・現金のみ。けいすけはミルク練乳なしのフルーツ系（当日「練乳なし」確認）'),
+          it('12:15', 'ランチ：オーガニックカフェ エムニ🥗', '', '赤沢・国道135号沿い／グルテンフリー＆ヴィーガン・けいすけも安心／※要予約・売り切れあり'),
+          it('13:30', '車で宿へ戻る🚗', '', ''),
+          it('14:00', '昼寝💤', '', '〜16:00・一番暑い午後を室内で回避'),
+          it('16:15', '奏の森リゾートで奏のマルシェ🛍️', '', '十足・お買い物/お土産/おやつ（マルシェ〜18:00）。Day3朝の食材もここで'),
+          it('17:30', '夕食：伊豆高原ビール 本店で漁師飯🐟', '', '漁師の漬け丼膳・海鮮丼など／金曜〜19:30。天ぷら・フライは避ける'),
+          it('19:00', '宿へ・お風呂・寝かしつけ😴', '', ''),
+          it('19:30', '（みほソロ・任意）キッチンZEN 夜の部かき氷🍧', '', '稲取・車35〜40分／夏は予約不可・開店すぐ＆Instagram(@kitchen_zen)で混雑確認。じいじばあばに留守番をお願い')
+        ]
+      },
+      {
+        date: '2026-07-18',
+        items: [
+          it('08:00', '宿でゆっくり朝食・荷造り🍙', '', '奏のマルシェ等で仕込んだ食材で'),
+          it('11:00', 'チェックアウト→伊東・湯川へ🚗', '', 'OUT11:00・荷物は車へ・約30分'),
+          it('11:45', '杉国商店で干物ランチ🐟', '', 'けいすけは「ひものセット」でOK／〜14:00営業'),
+          it('12:45', 'フルーツパーラー 伊豆旬実堂でパフェ🍨', '', '杉国商店のすぐ隣／けいすけはカットフルーツ・ジュース中心で'),
+          it('13:15', '北上🚗', '', '車内でけいすけの昼寝💤'),
+          it('14:15', '道の駅 伊豆ゲートウェイ函南で最後のお土産・休憩', '', '隣にめんたいパーク伊豆・わさびミュージアム'),
+          it('15:00', '三島駅へ🚗', '', ''),
+          it('15:30', '三島発（新幹線）→17:25頃 米原着🚄', '', 'こだま直通の目安・時間は仮。新幹線で昼寝の続きも')
+        ]
+      }
+    ],
+    packing: [
+      { text: '🎩 帽子（けいすけ・大人）', checked: false },
+      { text: '💧 水筒・たっぷりの水分', checked: false },
+      { text: '🧴 日焼け止め', checked: false },
+      { text: '🌬️ ハンディファン', checked: false },
+      { text: '🧊 保冷剤・冷感タオル', checked: false },
+      { text: '👶 抱っこ紐（休憩こまめに）', checked: false },
+      { text: '🍙 けいすけの安全なおやつ・おにぎり・ふりかけ', checked: false },
+      { text: '🥢 持参おかず（砂場のライス用にも）', checked: false },
+      { text: '🩲 おむつ多め', checked: false },
+      { text: '👕 着替え多め', checked: false },
+      { text: '📋 母子手帳・健康保険証', checked: false },
+      { text: '💊 アレルギー薬・常備薬', checked: false },
+      { text: '🎫 新幹線チケット（スマートEX）', checked: false },
+      { text: '🎫 サンダンス・リゾート予約票', checked: false },
+      { text: '☔ 折りたたみ傘・レインカバー', checked: false }
+    ],
+    importedMemo:
+`【日程】2026年7月16日(木)〜18日(土) 2泊3日
+【メンバー】みほ・けいすけ(1歳9ヶ月)・じいじ・ばあば
+【移動】みほ＆けいすけ：米原→三島 新幹線。三島でじいじ・ばあば（車）と合流、以降は車
+【宿】サンダンス・リゾート伊豆高原（伊豆高原駅から車10分・IN15:00・OUT11:00）
+※時間はすべて仮。新幹線は乗換案内（スマートEX等）で要確認。米原⇄三島は東海道新幹線（JR東海）→予約はスマートEX/EX予約 or 駅。
+
+🍽️ アレルギー対応（卵・乳・小麦）
+・みほは小麦・乳を控えめ（パン・パスタ・ピザ・ケーキなど"小麦メイン"は避ける／つなぎ等の微量はOK）
+・宿の食事プランを確認のうえアレルギー対応を事前電話（Day1夕食は外＝砂場）
+・朝食はコンビニで安全なものも調達しておくと安心
+・外出先用に安全なおやつ・おにぎり・ふりかけを持参（砂場のライス用にも）
+・食べられる店メモ：さわやか（おこさまメニュー）／杉国商店（ひものセット）／砂場（ライス＋持参）
+・漁師飯は海鮮丼・煮魚・刺身寄りで、天ぷら・フライは避ける
+・各店とも当日、揚げ油・調理器具の共用について一声確認を
+
+🍙 朝ごはん（両日とも宿でゆっくり・前日調達）
+・Day2朝分 → Day1に金目鯛の駅 直売所（8:30〜17:00・宿の近く）or 村の駅で
+・Day3朝分 → Day2夕方の奏のマルシェ（〜18:00）で
+・買うもの例：おにぎり/パックごはん、海鮮惣菜・煮物、フルーツ、漬物（けいすけ用はプレーンおにぎり・安全なお惣菜・果物）
+・部屋の冷蔵庫・ポット・レンジの有無を事前確認
+
+☀️ 暑さ・雨そなえ
+・屋外（大室山・シャボテン）は朝〜午前に集中、一番暑い午後は昼寝で室内へ
+・帽子・水分・日焼け止め・ハンディファン・保冷剤/冷感タオル
+・逃げ道：テディベア・ミュージアム（室内）、シャボテンの温室・動物舎・レッサーパンダ館
+
+✅ 確認・予約チェックリスト
+・米原⇄三島の新幹線（時刻確定→スマートEX/EX予約 or 駅）
+・サンダンス・リゾートへ食事プラン＆アレルギーの電話
+・オーガニックカフェ エムニ（Day2昼）の予約
+・キッチンZEN：夏の予約可否＆夜の部の混雑を電話/Instagramで確認（みほソロ）
+・さわやか公式で当日の待ち時間チェック
+・砂場：火曜の昼まで営業日でないか／座敷予約の要否（行くのは木曜なので基本OK）
+・コンビニ朝食・安全なおやつ・ふりかけの準備
+・朝食用の食材を前日調達（Day1→Day2朝分／Day2夕方の奏のマルシェ→Day3朝分）
+・部屋の冷蔵庫・ポット・レンジの有無を宿に確認
+
+🔜 次回の伊豆（持ち越しメモ）
+・伊豆ぐらんぱる公園（夏の水遊び「ウォーターランドぷるぷる」）
+・夜のグランイルミ（7/18以降は毎日点灯・18:00〜21:30）
+・けいすけが夜更かしOK＆アトラクションを楽しめる年齢になった頃に`
+  };
+}
+
+function seedIzuPlan() {
+  try {
+    if (localStorage.getItem('keisuke47_seed_shizuoka_plan')) return;
+    ensureIzuPlan();
+  } catch (e) {}
+}
+
+// 2026年のけいかくに伊豆の旅を登録し、伊豆しおりと紐付ける
+function ensureIzuPlan() {
+  const SEED_ID = 'seed-shizuoka-izu-2026';
+  const YEAR = 2026;
+  ensureYearPlans(YEAR);
+  const trips = tripPlans[YEAR];
+
+  // すでに紐付いてたら何もしない（位置はそのまま尊重）
+  let idx = trips.findIndex(t => t.shioriId === SEED_ID);
+  if (idx === -1) {
+    // 空き枠（県もしおりも未設定）を探して入れる。無ければユーザーデータを守って何もしない
+    idx = trips.findIndex(t => !t.pref && !t.shioriId);
+    if (idx === -1) return;
+    trips[idx] = {
+      pref: '静岡',
+      month: '7',
+      spots: ['伊豆テディベア・ミュージアム🐻', '大室山＆シャボテン動物公園🦫', '干物ランチ＆フルーツパーラー🐟🍨'],
+      shioriId: SEED_ID
+    };
+  } else {
+    if (!trips[idx].pref) trips[idx].pref = '静岡';
+    if (!trips[idx].month) trips[idx].month = '7';
+  }
+
+  // しおり側にも双方向リンクを張る
+  const shiori = shioriData.find(s => s.id === SEED_ID);
+  if (shiori) shiori.linkedPlan = { year: YEAR, idx };
+
+  localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans));
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_shizuoka_plan', '1');
+}
+
 function openShioriModal() {
   // Populate prefecture select
   const sel = document.getElementById('shioriPref');
@@ -4725,6 +4905,8 @@ async function cloudAutoSync() {
       ensureMidorigaokaSeed();
       ensureMidorigaokaPlan();
       ensureAnpanmanPlan();
+      ensureIzuSeed();
+      ensureIzuPlan();
       localStorage.setItem('keisuke47_lastsync', snap.data().updatedAt || '');
       _initialSyncDone = true;
       await pushToCloud();   // アンパンマンしおり等を反映して保存し直す
@@ -4751,6 +4933,8 @@ seedAnpanmanShiori();
 seedMidorigaokaShiori();
 seedMidorigaokaPlan();
 seedAnpanmanPlan();
+seedIzuShiori();
+seedIzuPlan();
 updateAll();
 cloudAutoSync();
 </script>
