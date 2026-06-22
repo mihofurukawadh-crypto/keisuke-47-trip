@@ -3495,6 +3495,142 @@ function ensureIzuPlan() {
   localStorage.setItem('keisuke47_seed_shizuoka_plan', '1');
 }
 
+function seedNagaragawaShiori() {
+  const SEED_ID = 'seed-gifu-nagaragawa-2026';
+  try {
+    if (localStorage.getItem('keisuke47_seed_gifu_nagaragawa')) return;
+    if (shioriData.some(s => s.id === SEED_ID)) {
+      localStorage.setItem('keisuke47_seed_gifu_nagaragawa', '1');
+      return;
+    }
+    shioriData.unshift(buildNagaragawaShiori(SEED_ID));
+    saveShiori();
+    localStorage.setItem('keisuke47_seed_gifu_nagaragawa', '1');
+  } catch (e) {}
+}
+
+// クラウド取り込み後など、長良川しおりが無ければ足し直す
+function ensureNagaragawaSeed() {
+  const SEED_ID = 'seed-gifu-nagaragawa-2026';
+  if (!shioriData.some(s => s.id === SEED_ID)) {
+    shioriData.unshift(buildNagaragawaShiori(SEED_ID));
+  }
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_gifu_nagaragawa', '1');
+}
+
+function buildNagaragawaShiori(id) {
+  const it = (time, place, url, memo) => ({ time, place, url: url || '', memo: memo || '' });
+  return {
+    id,
+    title: 'けいすけと長良川たび🎆',
+    pref: '岐阜',
+    startDate: '2026-06-27',
+    endDate: '2026-06-28',
+    days: [
+      {
+        date: '2026-06-27',
+        items: [
+          it('09:00', '英語教室（米原 S・Cプラザ）', '', '10:00ぴったり出発'),
+          it('10:40', '関ヶ原鍾乳洞🐟', '', '30分・涼しく探検＆お魚／羽織りもの'),
+          it('11:25', 'Andante（今須）で早ランチ🍴', '', '薄味ガパオ取り分け＋おにぎり保険・テキパキ注文'),
+          it('12:10', '下道で大垣へ（昼寝ドライブ💤）🚗', '', '走り出してすぐ就寝ねらい'),
+          it('13:15', '大垣着→日陰・立体Pで待機', '', 'エアコンON・移動させず寝かせ続ける'),
+          it('14:15', '起こす→おやつ・おむつ', '', 'ここまで2時間昼寝'),
+          it('14:30', '七田式大垣', '', 'スッキリご機嫌で✨'),
+          it('15:30', '長良川温泉へ（約40分）🚗', '', '車でウトウト＝夜の充電'),
+          it('16:15', 'ホテルパーク チェックイン', '', '和室・布団'),
+          it('17:00', '長良川夜市🎆', '', '晩ごはんは屋台・花火19:45'),
+          it('20:30', 'お風呂→就寝😴', '', 'おむつ可否確認／お部屋のお風呂でも◎')
+        ]
+      },
+      {
+        date: '2026-06-28',
+        items: [
+          it('07:00', 'ホテルで朝食🍙', '', ''),
+          it('08:50', '出発', '', '9時前死守（10時集合）'),
+          it('10:00', '七田式大垣', '', ''),
+          it('11:15', 'イオンモール大垣で早ランチ🍴', '', 'ピーク前に滑り込み or テイクアウト→ピュアハート持ち込みカフェ'),
+          it('12:00', 'ピュアハートで遊ぶ🎈', '', 'けいすけ無料・授乳室＆おむつ替え完備'),
+          it('13:30', '大垣→米原（約40分）🚗', '', '帰りの車で昼寝💤')
+        ]
+      }
+    ],
+    packing: [
+      { text: '🎩 帽子', checked: false },
+      { text: '🍵 麦茶・水分多め', checked: false },
+      { text: '🚗 車のサンシェード', checked: false },
+      { text: '👶 日除け付きベビーカー', checked: false },
+      { text: '👕 着替え・おむつ多め', checked: false },
+      { text: '🍙 おにぎり・おやつ', checked: false },
+      { text: '🛁 お風呂用ベビーグッズ', checked: false },
+      { text: '🧥 羽織りもの（鍾乳洞・夜市の夜）', checked: false }
+    ],
+    importedMemo:
+`【日程】2026年6月27日(土)〜28日(日) 1泊2日
+【宿】ホテルパーク（長良川温泉・和室布団・朝食付き ¥24,750）
+【移動】車・下道メイン
+
+💤 1日目・2時間昼寝の攻略
+・午前は寝かさない（睡眠圧を昼に集中）
+・大垣に13:15までに停める（停車待機で2時間に調整）
+・車で寝たら移動させない／日陰＋エアコン＋必ず一緒に車内
+・寝かす前は薄暗く・ミルク・トントンで入眠モード
+
+🍙 2日目・昼食の混雑回避
+・シンプルに → 11:30に早ランチ（日曜ピーク12〜13時の前に）
+・混雑ゼロ → テイクアウト→ピュアハート内の持ち込みカフェで
+・保険 → けいすけの食べ慣れたもの持参
+
+✅ チェックリスト
+・羽織りもの（鍾乳洞・夜市の夜）🧥
+・そばデビューは見送り → 後日おうちで
+・大浴場のおむつ可否を確認
+・ホテル：和室・布団・添い寝＆無料キャンセル期限
+・日曜は9時前出発`
+  };
+}
+
+function seedNagaragawaPlan() {
+  try {
+    if (localStorage.getItem('keisuke47_seed_gifu_plan')) return;
+    ensureNagaragawaPlan();
+  } catch (e) {}
+}
+
+// 2026年のけいかくに長良川の旅を登録し、長良川しおりと紐付ける
+function ensureNagaragawaPlan() {
+  const SEED_ID = 'seed-gifu-nagaragawa-2026';
+  const YEAR = 2026;
+  ensureYearPlans(YEAR);
+  const trips = tripPlans[YEAR];
+
+  // すでに紐付いてたら何もしない（位置はそのまま尊重）
+  let idx = trips.findIndex(t => t.shioriId === SEED_ID);
+  if (idx === -1) {
+    // 空き枠（県もしおりも未設定）を探して入れる。無ければユーザーデータを守って何もしない
+    idx = trips.findIndex(t => !t.pref && !t.shioriId);
+    if (idx === -1) return;
+    trips[idx] = {
+      pref: '岐阜',
+      month: '6',
+      spots: ['関ヶ原鍾乳洞🐟', '長良川夜市＆花火🎆', 'ピュアハートキッズランド🎈'],
+      shioriId: SEED_ID
+    };
+  } else {
+    if (!trips[idx].pref) trips[idx].pref = '岐阜';
+    if (!trips[idx].month) trips[idx].month = '6';
+  }
+
+  // しおり側にも双方向リンクを張る
+  const shiori = shioriData.find(s => s.id === SEED_ID);
+  if (shiori) shiori.linkedPlan = { year: YEAR, idx };
+
+  localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans));
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_gifu_plan', '1');
+}
+
 function openShioriModal() {
   // Populate prefecture select
   const sel = document.getElementById('shioriPref');
@@ -4907,6 +5043,8 @@ async function cloudAutoSync() {
       ensureAnpanmanPlan();
       ensureIzuSeed();
       ensureIzuPlan();
+      ensureNagaragawaSeed();
+      ensureNagaragawaPlan();
       localStorage.setItem('keisuke47_lastsync', snap.data().updatedAt || '');
       _initialSyncDone = true;
       await pushToCloud();   // アンパンマンしおり等を反映して保存し直す
@@ -4935,6 +5073,8 @@ seedMidorigaokaPlan();
 seedAnpanmanPlan();
 seedIzuShiori();
 seedIzuPlan();
+seedNagaragawaShiori();
+seedNagaragawaPlan();
 updateAll();
 cloudAutoSync();
 </script>
