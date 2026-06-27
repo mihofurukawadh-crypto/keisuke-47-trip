@@ -3631,6 +3631,92 @@ function ensureNagaragawaPlan() {
   localStorage.setItem('keisuke47_seed_gifu_plan', '1');
 }
 
+// ----- 長良川たび 1日目の「実ログ＆ふりかえり」しおり -----
+// 予定とかなり狂った日の“実際”を記録して次回に活かすための一冊。
+// もとの計画しおり（seed-gifu-nagaragawa-2026）はそのまま残し、見くらべられるようにする。
+function seedNagaragawaLogShiori() {
+  const SEED_ID = 'seed-gifu-nagaragawa-log-2026';
+  try {
+    if (localStorage.getItem('keisuke47_seed_gifu_nagaragawa_log')) return;
+    if (shioriData.some(s => s.id === SEED_ID)) {
+      localStorage.setItem('keisuke47_seed_gifu_nagaragawa_log', '1');
+      return;
+    }
+    shioriData.unshift(buildNagaragawaLogShiori(SEED_ID));
+    saveShiori();
+    localStorage.setItem('keisuke47_seed_gifu_nagaragawa_log', '1');
+  } catch (e) {}
+}
+
+// クラウド取り込み後など、実ログしおりが無ければ足し直す
+function ensureNagaragawaLogShiori() {
+  const SEED_ID = 'seed-gifu-nagaragawa-log-2026';
+  if (!shioriData.some(s => s.id === SEED_ID)) {
+    shioriData.unshift(buildNagaragawaLogShiori(SEED_ID));
+  }
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_gifu_nagaragawa_log', '1');
+}
+
+function buildNagaragawaLogShiori(id) {
+  const it = (time, place, url, memo) => ({ time, place, url: url || '', memo: memo || '' });
+  return {
+    id,
+    title: 'けいすけと長良川たび【1日目 実ログ📝】🎆',
+    pref: '岐阜',
+    startDate: '2026-06-27',
+    endDate: '2026-06-27',
+    days: [
+      {
+        date: '2026-06-27',
+        items: [
+          it('09:00', '英語教室（米原 S・Cプラザ）→ 台風で中止😢', '', '⚠️【予定狂い①】現地で張り紙を見て中止を知る。けいすけ楽しみにしてたぶんショック→チャイルドシートを嫌がり再乗車に苦戦'),
+          it('10:30', '【変更】関ヶ原鍾乳洞はパス→スイトピアセンターへ', '', '雨＆寒さで鍾乳洞は見送り。室内遊びが大ヒット！けいすけ「またいきたい！」'),
+          it('12:00', 'ランチ：船町ベース（船町港跡）🍴', '', 'けいすけはほぼ食べず'),
+          it('12:45', '金蝶園で水まんじゅう🍡', '', 'みほは堪能。けいすけは湧水で水遊びしてびしょ濡れに。⚠️目を離した隙に車道へ飛び出すヒヤリ（接触なし）→以後は手つなぎ・抱っこ・ハーネス徹底'),
+          it('13:30', 'お昼寝（予定2時間→1時間に短縮）💤', '', '遊び疲れで早めに起きる。みほは抹茶珈琲姉妹でソロ活☕また行きたい'),
+          it('14:00', '七田式大垣', '', '⚠️直前に開始14時と気づいてセーフ。寝起きで不機嫌も短時間で持ち直す（けいすけえらい）'),
+          it('16:00', '【変更】岐阜城エリアへ（雨上がり）🏯', '', '天守には登らず、ロープウェイ＆リス村を満喫🐿️ 大満足！'),
+          it('18:00', 'ホテルパーク チェックイン（遅め）🏨', '', '遊びすぎてチェックインは遅め'),
+          it('19:00', '夕食：信長（居酒屋）🏮', '', '⚠️【予定狂い②③④】夜市中止＋楽市は閉店多数＋ホテル夕食満席→ホテル紹介の信長へ。店員さん親切・料理絶品で大満足！けいすけはウロウロで奮闘。※この日はテイクアウト→部屋食が正解だった'),
+          it('21:00', '大浴場→就寝♨️😴', '', '部屋風呂が狭く大浴場へ。慣れない雰囲気でけいすけ号泣→見知らぬ方にアンパンマンのシールをもらい泣き止む。その後も眠気でぐずり')
+        ]
+      }
+    ],
+    budget: {
+      planned: 0,
+      expenses: [
+        { category: '宿泊費', memo: 'ホテルパーク（長良川温泉・和室・朝食付き）', amount: 24750 }
+      ]
+    },
+    importedMemo:
+`【日程】2026年6月27日(土) 1日目の実ログ
+【宿】ホテルパーク（長良川温泉・和室布団・朝食付き ¥24,750）
+【天気】☔️→☀️（台風接近も影響は小雨程度、午後は晴れ）
+【けいすけ】1歳8ヶ月
+
+🌟 見つけたお気に入り（また行きたい）
+・スイトピアセンター（雨の日の室内遊びに最高・米原から近い）
+・金蝶園の水まんじゅう
+・岐阜城ロープウェイ＆リス村
+・信長（子連れは座敷/個室確認推奨だけど味は◎）
+・抹茶珈琲姉妹（ソロ活カフェ）
+
+📝 次回への学び
+・室内遊び場・観光は昼寝＆チェックインから逆算してアラームで切り上げる
+・「楽しい」は必ず予定を押す、を最初から織り込む
+・子連れ夕食は座敷・個室・ベビーチェアの有無を電話で一本確認
+・予定が押す＆けいすけが疲れてる日は、テイクアウト→部屋食が正解。お店で座らせる難易度が高い日は無理せず部屋でゆっくりがお互いラク
+・車道そばは“見る”より“物理的につながる”（手つなぎ・ハーネス）
+・食べない日・温泉デビューの号泣は想定内。おにぎり・シールブック・羽織りものが効く
+・予定の開始時刻は前日に再確認（七田式14時、危うく勘違いするところだった）
+
+💬 ひとことメモ
+予定が4回も狂った（英語教室中止・夜市中止・楽市閉店・ホテル夕食満席）不可抗力だらけの一日。それでも全部その場で立て直して、けいすけの「楽しい」をいっぱい引き出せた。出だし最悪→終わってみれば思い出てんこ盛りの大成功デー。
+※夕食はお店にこだわらず、テイクアウトして部屋でゆっくり食べるのがこの日のベストだった。`
+  };
+}
+
 function openShioriModal() {
   // Populate prefecture select
   const sel = document.getElementById('shioriPref');
@@ -5045,6 +5131,7 @@ async function cloudAutoSync() {
       ensureIzuPlan();
       ensureNagaragawaSeed();
       ensureNagaragawaPlan();
+      ensureNagaragawaLogShiori();
       localStorage.setItem('keisuke47_lastsync', snap.data().updatedAt || '');
       _initialSyncDone = true;
       await pushToCloud();   // アンパンマンしおり等を反映して保存し直す
@@ -5075,6 +5162,7 @@ seedIzuShiori();
 seedIzuPlan();
 seedNagaragawaShiori();
 seedNagaragawaPlan();
+seedNagaragawaLogShiori();
 updateAll();
 cloudAutoSync();
 </script>
