@@ -1,5 +1,5 @@
 // Simple service worker for offline support
-const CACHE = 'keisuke47-v1';
+const CACHE = 'keisuke47-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -26,7 +26,8 @@ self.addEventListener('fetch', (e) => {
   // Network-first for HTML to get latest version, cache fallback
   if (e.request.mode === 'navigate' || url.pathname.endsWith('.html')) {
     e.respondWith(
-      fetch(e.request).then(res => {
+      // cache:'reload' でブラウザのHTTPキャッシュも飛ばして必ず最新を取りにいく
+      fetch(e.request, { cache: 'reload' }).then(res => {
         const clone = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
         return res;
