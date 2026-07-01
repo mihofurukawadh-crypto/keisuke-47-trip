@@ -1163,6 +1163,32 @@
       word-break: break-all;
     }
 
+    .shiori-item-time {
+      flex: 0 0 auto;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pink);
+      background: #FDF2F5;
+      padding: 4px 10px;
+      border-radius: 10px;
+    }
+
+    .shiori-item-place {
+      flex: 1;
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .shiori-item-memo {
+      flex: 1;
+      min-width: 0;
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
     .shiori-item-delete {
       background: none;
       border: none;
@@ -1221,9 +1247,16 @@
       font-size: 22px;
       cursor: pointer;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 2px;
       font-family: inherit;
+    }
+
+    .shiori-item-photo-add-label {
+      font-size: 10px;
+      font-weight: 700;
     }
 
     /* Packing / Budget / Weather sections */
@@ -2059,10 +2092,6 @@
   <div class="view" id="view-shiori">
     <div class="shiori-header">
       <h1>📖 たびのしおり</h1>
-      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
-        <button class="shiori-add-btn" style="margin-top:0" onclick="openShioriModal()">＋ しおりを作る</button>
-        <button class="shiori-add-btn" style="margin-top:0" onclick="openShioriImportModal()">📥 テキストから取り込み</button>
-      </div>
     </div>
     <div id="shioriList" class="shiori-list"></div>
   </div>
@@ -2117,45 +2146,10 @@
     </div>
   </div>
 
-  <!-- Shiori Import Modal -->
-  <div class="shiori-modal-overlay" id="shioriImportOverlay" onclick="if(event.target===this)closeShioriImportModal()">
-    <div class="shiori-modal" style="max-width:380px">
-      <h2>📥 テキストから取り込み</h2>
-      <p style="font-size:11px;color:var(--text-light);margin-bottom:8px;line-height:1.5">
-        旅行プランのテキストを貼り付けてね。日付・スケジュールを自動でしおりにするで！
-      </p>
-      <textarea id="shioriImportText" style="width:100%;min-height:200px;padding:10px;border:1.5px solid #EDE8E3;border-radius:12px;font-family:inherit;font-size:12px;background:#FDFBF9;outline:none;resize:vertical" placeholder="旅行プランをここに貼り付け..."></textarea>
-      <div class="shiori-modal-btns">
-        <button class="btn-cancel" onclick="closeShioriImportModal()">やめる</button>
-        <button class="btn-create" onclick="importShioriFromText()">取り込む！</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Shiori Detail -->
   <div class="shiori-detail" id="shioriDetail"></div>
 
   <!-- Shiori Create Modal -->
-  <div class="shiori-modal-overlay" id="shioriModalOverlay" onclick="if(event.target===this)closeShioriModal()">
-    <div class="shiori-modal">
-      <h2>📖 しおりを作る</h2>
-      <label>タイトル</label>
-      <input type="text" id="shioriTitle" placeholder="例：沖縄たび 2027">
-      <label>行き先（都道府県）</label>
-      <select id="shioriPref">
-        <option value="">選んでね</option>
-      </select>
-      <label>出発日</label>
-      <input type="date" id="shioriStartDate">
-      <label>帰る日</label>
-      <input type="date" id="shioriEndDate">
-      <div class="shiori-modal-btns">
-        <button class="btn-cancel" onclick="closeShioriModal()">やめる</button>
-        <button class="btn-create" onclick="createShiori()">作る！</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Confetti Container -->
   <div class="confetti-container" id="confettiContainer"></div>
 
@@ -2693,9 +2687,7 @@ function renderTripForm(year, idx, trip) {
   const linkedShiori = trip.shioriId ? shioriData.find(s => s.id === trip.shioriId) : null;
   const shioriBtn = linkedShiori
     ? `<button class="plan-shiori-btn linked" onclick="event.stopPropagation();openShioriFromPlan('${trip.shioriId}')">📖 しおりを見る</button>`
-    : trip.pref
-      ? `<button class="plan-shiori-btn" onclick="event.stopPropagation();createShioriFromPlan(${year},${idx})">📖 しおりを作る</button>`
-      : '';
+    : '';
 
   return `
     <div class="plan-trip ${isFilled}">
@@ -3774,60 +3766,6 @@ function buildNagaragawaLogShiori(id) {
   };
 }
 
-function openShioriModal() {
-  // Populate prefecture select
-  const sel = document.getElementById('shioriPref');
-  sel.innerHTML = '<option value="">選んでね</option>' +
-    ALL_PREFS.map(p => `<option value="${p}">${p}</option>`).join('');
-  document.getElementById('shioriTitle').value = '';
-  document.getElementById('shioriStartDate').value = '';
-  document.getElementById('shioriEndDate').value = '';
-  document.getElementById('shioriModalOverlay').classList.add('show');
-}
-
-function closeShioriModal() {
-  document.getElementById('shioriModalOverlay').classList.remove('show');
-}
-
-function createShiori() {
-  const title = document.getElementById('shioriTitle').value.trim();
-  const pref = document.getElementById('shioriPref').value;
-  const startDate = document.getElementById('shioriStartDate').value;
-  const endDate = document.getElementById('shioriEndDate').value;
-
-  if (!title) { alert('タイトルを入れてね！'); return; }
-
-  // Calculate days between dates
-  let days = [];
-  if (startDate && endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const diff = Math.max(1, Math.round((end - start) / 86400000) + 1);
-    for (let i = 0; i < diff; i++) {
-      const d = new Date(start);
-      d.setDate(d.getDate() + i);
-      const dateStr = d.toISOString().split('T')[0];
-      days.push({ date: dateStr, items: [{ time: '', place: '', url: '', memo: '' }] });
-    }
-  } else {
-    days = [{ date: '', items: [{ time: '', place: '', url: '', memo: '' }] }];
-  }
-
-  const shiori = {
-    id: Date.now().toString(),
-    title,
-    pref,
-    startDate,
-    endDate,
-    days
-  };
-
-  shioriData.unshift(shiori);
-  saveShiori();
-  closeShioriModal();
-  openShioriDetail(shiori.id);
-}
-
 function deleteShiori(id) {
   if (!confirm('このしおりを削除しますか？')) return;
   // Unlink from plan
@@ -3845,7 +3783,7 @@ function deleteShiori(id) {
 function renderShioriList() {
   const container = document.getElementById('shioriList');
   if (shioriData.length === 0) {
-    container.innerHTML = '<div class="shiori-empty">📖 まだしおりがないよ<br>「しおりを作る」から始めよう！</div>';
+    container.innerHTML = '<div class="shiori-empty">📖 まだしおりがないよ<br>クロコちゃんにおねがいしてね！</div>';
     return;
   }
 
@@ -3912,7 +3850,6 @@ function renderShioriDetail(shiori) {
       ${planLink}
       <div class="shiori-detail-actions">
         ${linkBtn}
-        <button onclick="editShioriMeta('${shiori.id}')">✏️ 編集</button>
         <button onclick="deleteShiori('${shiori.id}')">🗑 削除</button>
       </div>
     </div>
@@ -3932,42 +3869,21 @@ function renderShioriDetail(shiori) {
       <div class="shiori-day">
         <div class="shiori-day-header">
           <span>🌟 ${dayLabel}${dateLabel ? '　' + dateLabel : ''}</span>
-          ${shiori.days.length > 1 ? `<button class="shiori-remove-day-btn" onclick="removeShioriDay('${shiori.id}',${dayIdx})">✕</button>` : ''}
         </div>
     `;
 
     day.items.forEach((item, itemIdx) => {
-      const isFirst = itemIdx === 0;
-      const isLast = itemIdx === day.items.length - 1;
       html += `
         <div class="shiori-item">
           <div class="shiori-item-row" style="justify-content:space-between">
             <span style="font-size:11px;color:var(--text-light);font-weight:700">No.${itemIdx + 1}</span>
-            <div style="display:flex;gap:4px">
-              <button class="shiori-item-delete" ${isFirst ? 'disabled style="opacity:0.2"' : ''} onclick="moveShioriItem('${shiori.id}',${dayIdx},${itemIdx},-1)">⬆</button>
-              <button class="shiori-item-delete" ${isLast ? 'disabled style="opacity:0.2"' : ''} onclick="moveShioriItem('${shiori.id}',${dayIdx},${itemIdx},1)">⬇</button>
-              <button class="shiori-item-delete" onclick="removeShioriItem('${shiori.id}',${dayIdx},${itemIdx})">🗑</button>
-            </div>
           </div>
           <div class="shiori-item-row">
-            <span class="shiori-item-icon">⏰</span>
-            <input type="time" class="shiori-item-input time-input" value="${item.time}"
-              onchange="updateShioriItem('${shiori.id}',${dayIdx},${itemIdx},'time',this.value)">
-            <span class="shiori-item-icon">📍</span>
-            <input type="text" class="shiori-item-input" placeholder="場所" value="${escapeHtml(item.place)}"
-              onchange="updateShioriItem('${shiori.id}',${dayIdx},${itemIdx},'place',this.value)">
+            ${item.time ? `<span class="shiori-item-time">⏰ ${escapeHtml(item.time)}</span>` : ''}
+            ${item.place ? `<span class="shiori-item-place">📍 ${escapeHtml(item.place)}</span>` : ''}
           </div>
-          <div class="shiori-item-row">
-            <span class="shiori-item-icon">🔗</span>
-            <input type="url" class="shiori-item-input" placeholder="URL（予約サイトなど）" value="${escapeHtml(item.url)}"
-              onchange="updateShioriItem('${shiori.id}',${dayIdx},${itemIdx},'url',this.value)">
-          </div>
-          ${item.url ? `<div class="shiori-item-row"><span class="shiori-item-icon"></span><a href="${escapeHtml(item.url)}" target="_blank" class="shiori-item-url">${escapeHtml(item.url)}</a></div>` : ''}
-          <div class="shiori-item-row">
-            <span class="shiori-item-icon">📝</span>
-            <input type="text" class="shiori-item-input" placeholder="メモ" value="${escapeHtml(item.memo)}"
-              onchange="updateShioriItem('${shiori.id}',${dayIdx},${itemIdx},'memo',this.value)">
-          </div>
+          ${item.url ? `<div class="shiori-item-row"><span class="shiori-item-icon">🔗</span><a href="${escapeHtml(item.url)}" target="_blank" class="shiori-item-url">${escapeHtml(item.url)}</a></div>` : ''}
+          ${item.memo ? `<div class="shiori-item-row"><span class="shiori-item-icon">📝</span><span class="shiori-item-memo">${escapeHtml(item.memo)}</span></div>` : ''}
           <div class="shiori-item-photos">
             ${(item.photos || []).map((src, pi) => `
               <div class="shiori-item-photo-wrap">
@@ -3975,7 +3891,7 @@ function renderShioriDetail(shiori) {
                 <button class="shiori-item-photo-remove" onclick="removeShioriItemPhoto('${shiori.id}',${dayIdx},${itemIdx},${pi})">×</button>
               </div>
             `).join('')}
-            <button class="shiori-item-photo-add" onclick="document.getElementById('shioriPhotoInput-${dayIdx}-${itemIdx}').click()">＋</button>
+            <button class="shiori-item-photo-add" onclick="document.getElementById('shioriPhotoInput-${dayIdx}-${itemIdx}').click()">📷<span class="shiori-item-photo-add-label">写真をついか</span></button>
             <input type="file" id="shioriPhotoInput-${dayIdx}-${itemIdx}" accept="image/*" multiple style="display:none"
               onchange="addShioriItemPhotos('${shiori.id}',${dayIdx},${itemIdx},event)">
           </div>
@@ -3984,12 +3900,9 @@ function renderShioriDetail(shiori) {
     });
 
     html += `
-        <button class="shiori-add-item-btn" onclick="addShioriItem('${shiori.id}',${dayIdx})">＋ スケジュールを追加</button>
       </div>
     `;
   });
-
-  html += `<button class="shiori-add-day-btn" onclick="addShioriDay('${shiori.id}')">＋ 日を追加</button>`;
 
   html += `<button class="shiori-blog-btn" onclick="openBlogModal('${shiori.id}')">📝 ブログ記事として書き出し</button>`;
 
@@ -4012,36 +3925,6 @@ function backToShioriList() {
   document.getElementById('shioriDetail').classList.remove('active');
   document.getElementById('view-shiori').classList.add('active');
   renderShioriList();
-}
-
-function updateShioriItem(id, dayIdx, itemIdx, field, value) {
-  const shiori = shioriData.find(s => s.id === id);
-  if (!shiori) return;
-  shiori.days[dayIdx].items[itemIdx][field] = value;
-  saveShiori();
-  // Re-render if URL changed (to show/hide link)
-  if (field === 'url') renderShioriDetail(shiori);
-}
-
-function addShioriItem(id, dayIdx) {
-  const shiori = shioriData.find(s => s.id === id);
-  if (!shiori) return;
-  shiori.days[dayIdx].items.push({ time: '', place: '', url: '', memo: '' });
-  saveShiori();
-  renderShioriDetail(shiori);
-}
-
-function removeShioriItem(id, dayIdx, itemIdx) {
-  const shiori = shioriData.find(s => s.id === id);
-  if (!shiori) return;
-  if (shiori.days[dayIdx].items.length <= 1) {
-    // Keep at least one empty placeholder
-    shiori.days[dayIdx].items = [{ time: '', place: '', url: '', memo: '' }];
-  } else {
-    shiori.days[dayIdx].items.splice(itemIdx, 1);
-  }
-  saveShiori();
-  renderShioriDetail(shiori);
 }
 
 function addShioriItemPhotos(id, dayIdx, itemIdx, e) {
@@ -4310,53 +4193,6 @@ function generateBlogMarkdown(shiori) {
   return md;
 }
 
-function moveShioriItem(id, dayIdx, itemIdx, direction) {
-  const shiori = shioriData.find(s => s.id === id);
-  if (!shiori) return;
-  const items = shiori.days[dayIdx].items;
-  const newIdx = itemIdx + direction;
-  if (newIdx < 0 || newIdx >= items.length) return;
-  [items[itemIdx], items[newIdx]] = [items[newIdx], items[itemIdx]];
-  saveShiori();
-  renderShioriDetail(shiori);
-}
-
-function addShioriDay(id) {
-  const shiori = shioriData.find(s => s.id === id);
-  if (!shiori) return;
-  // Calculate next date
-  const lastDay = shiori.days[shiori.days.length - 1];
-  let newDate = '';
-  if (lastDay.date) {
-    const d = new Date(lastDay.date);
-    d.setDate(d.getDate() + 1);
-    newDate = d.toISOString().split('T')[0];
-  }
-  shiori.days.push({ date: newDate, items: [{ time: '', place: '', url: '', memo: '' }] });
-  saveShiori();
-  renderShioriDetail(shiori);
-}
-
-function removeShioriDay(id, dayIdx) {
-  const shiori = shioriData.find(s => s.id === id);
-  if (!shiori || shiori.days.length <= 1) return;
-  if (!confirm(`${dayIdx + 1}日目を削除しますか？`)) return;
-  shiori.days.splice(dayIdx, 1);
-  saveShiori();
-  renderShioriDetail(shiori);
-}
-
-function editShioriMeta(id) {
-  const shiori = shioriData.find(s => s.id === id);
-  if (!shiori) return;
-  const newTitle = prompt('タイトル', shiori.title);
-  if (newTitle !== null && newTitle.trim()) {
-    shiori.title = newTitle.trim();
-    saveShiori();
-    renderShioriDetail(shiori);
-  }
-}
-
 // ===== Packing / Budget / Weather =====
 const PACKING_TEMPLATE = [
   '👕 着替え（人数分×日数）','🧦 靴下・下着','🩲 おむつ・おしりふき','👶 よだれかけ',
@@ -4618,268 +4454,7 @@ function renderWeatherSection(shiori) {
   `;
 }
 
-// ===== Shiori Import from Text =====
-function openShioriImportModal() {
-  document.getElementById('shioriImportText').value = '';
-  document.getElementById('shioriImportOverlay').classList.add('show');
-}
-
-function closeShioriImportModal() {
-  document.getElementById('shioriImportOverlay').classList.remove('show');
-}
-
-function importShioriFromText() {
-  const text = document.getElementById('shioriImportText').value.trim();
-  if (!text) { alert('テキストを貼り付けてね！'); return; }
-
-  const parsed = parseShioriText(text);
-  if (!parsed.days.length) {
-    alert('日付付きのスケジュールが見つからへんかった💦\n\n対応してる形式：\n・10月10日\n・10/10\n・1日目\n・Day 1\n・📅 10月10日\n\n見出しっぽく書いてね（行頭に「#」「■」「-」もOK）');
-    return;
-  }
-
-  const shiori = {
-    id: Date.now().toString(),
-    title: parsed.title || '取り込んだ旅',
-    pref: parsed.pref || '',
-    startDate: parsed.startDate || (parsed.days[0]?.date) || '',
-    endDate: parsed.endDate || (parsed.days[parsed.days.length-1]?.date) || '',
-    days: parsed.days,
-    importedMemo: parsed.memo || ''
-  };
-
-  shioriData.unshift(shiori);
-  saveShiori();
-  closeShioriImportModal();
-  openShioriDetail(shiori.id);
-}
-
-function parseShioriText(text) {
-  const result = { title: '', pref: '', startDate: '', endDate: '', days: [], memo: '' };
-  const lines = text.split('\n');
-
-  // Try to find prefecture mentioned
-  for (const p of ALL_PREFS) {
-    if (text.includes(p)) { result.pref = p; break; }
-  }
-
-  // Extract date range from "日程：YYYY年M月D日(...)〜D日(...)" or similar
-  const rangeMatch = text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日[^〜~\-]*[〜~\-]+(?:(\d{4})年)?(?:(\d{1,2})月)?(\d{1,2})日/);
-  if (rangeMatch) {
-    const [, y1, m1, d1, y2, m2, d2] = rangeMatch;
-    const yy1 = parseInt(y1);
-    const mm1 = parseInt(m1);
-    const dd1 = parseInt(d1);
-    const yy2 = parseInt(y2 || y1);
-    const mm2 = parseInt(m2 || m1);
-    const dd2 = parseInt(d2);
-    result.startDate = `${yy1}-${String(mm1).padStart(2,'0')}-${String(dd1).padStart(2,'0')}`;
-    result.endDate = `${yy2}-${String(mm2).padStart(2,'0')}-${String(dd2).padStart(2,'0')}`;
-  }
-
-  // Title: try to find "目的：..." or use first heading
-  const purposeMatch = text.match(/目的[：:]\s*(.+)/);
-  if (purposeMatch) {
-    result.title = purposeMatch[1].trim().slice(0, 30);
-  }
-  if (!result.title && result.pref) {
-    result.title = result.pref + 'たび';
-  }
-
-  // Parse day sections marked with 📅
-  const baseYear = result.startDate ? parseInt(result.startDate.slice(0,4)) : new Date().getFullYear();
-  const sections = [];
-  let current = null;
-  let inMemo = false;
-  const memoLines = [];
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-    if (!line) continue;
-
-    // Day header: try multiple formats
-    // 1) 📅 / 🗓 / ## / ### / ■ / ▼ / 【 prefixed lines with date
-    // 2) ◯月◯日, ◯/◯, M月D日(曜), 1日目, Day 1
-    let dayMatch = null;
-    let isDayHeader = false;
-
-    // Strip common header prefixes for matching
-    const headerStripped = line.replace(/^[#＃■◆●▼▽◯☆★※\*\-\s]*[📅🗓📆🌟⭐]?\s*/, '').replace(/^【|】$/g, '');
-
-    // Format A: M月D日 (with optional year and weekday suffix)
-    let m = headerStripped.match(/^(?:(\d{4})年)?(\d{1,2})月(\d{1,2})日(?:\s*[（(].*?[)）])?[\s:：]*$/);
-    if (m) {
-      isDayHeader = true;
-      dayMatch = { year: m[1], month: m[2], day: m[3] };
-    }
-
-    // Format B: M/D or YYYY/M/D
-    if (!isDayHeader) {
-      m = headerStripped.match(/^(?:(\d{4})[\/\-])?(\d{1,2})[\/\-](\d{1,2})(?:\s*[（(].*?[)）])?[\s:：]*$/);
-      if (m) {
-        isDayHeader = true;
-        dayMatch = { year: m[1], month: m[2], day: m[3] };
-      }
-    }
-
-    // Format C: N日目 (without date)
-    if (!isDayHeader) {
-      m = headerStripped.match(/^(\d{1,2})日目(?:[:：\s].*)?$/);
-      if (m) {
-        isDayHeader = true;
-        dayMatch = { dayIndex: parseInt(m[1]) };
-      }
-    }
-
-    // Format D: Day N
-    if (!isDayHeader) {
-      m = headerStripped.match(/^Day\s*(\d{1,2})(?:[:：\s].*)?$/i);
-      if (m) {
-        isDayHeader = true;
-        dayMatch = { dayIndex: parseInt(m[1]) };
-      }
-    }
-
-    // Format E: Original 📅 format anywhere in line (legacy)
-    if (!isDayHeader) {
-      m = line.match(/[📅🗓📆]\s*(?:(\d{1,2})月)?(\d{1,2})日/);
-      if (m) {
-        isDayHeader = true;
-        dayMatch = { month: m[1], day: m[2] };
-      }
-    }
-
-    if (isDayHeader) {
-      inMemo = false;
-      let dateStr = '';
-      if (dayMatch.year || dayMatch.month) {
-        const year = dayMatch.year ? parseInt(dayMatch.year) : baseYear;
-        const month = dayMatch.month ? parseInt(dayMatch.month) : (result.startDate ? parseInt(result.startDate.slice(5,7)) : null);
-        const day = dayMatch.day ? parseInt(dayMatch.day) : null;
-        if (month && day) {
-          dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        }
-      } else if (dayMatch.dayIndex && result.startDate) {
-        // Calculate from start date + offset
-        const start = new Date(result.startDate);
-        start.setDate(start.getDate() + dayMatch.dayIndex - 1);
-        dateStr = start.toISOString().split('T')[0];
-      }
-      current = { date: dateStr, items: [] };
-      sections.push(current);
-      continue;
-    }
-
-    // Memo section
-    if (line.match(/^\*?\*?メモ\*?\*?$/) || line === 'メモ') {
-      inMemo = true;
-      current = null;
-      continue;
-    }
-
-    if (inMemo) {
-      memoLines.push(line.replace(/^[-・]\s*/, ''));
-      continue;
-    }
-
-    // Schedule item under a day
-    if (current) {
-      // Strip leading bullet
-      const cleaned = line.replace(/^[-・*]\s*/, '');
-      if (!cleaned) continue;
-
-      // Parse time: "11:30 ..." or "9:30〜11:30 ..." or "〜11:00 ..."
-      const timeMatch = cleaned.match(/^(?:〜|~)?(\d{1,2}:\d{2})(?:\s*[〜~\-]\s*\d{1,2}:\d{2})?\s*(.*)$/);
-      if (timeMatch) {
-        const time = timeMatch[1];
-        const rest = timeMatch[2].trim();
-        // Pad time to HH:MM
-        const [h, m] = time.split(':');
-        const paddedTime = `${String(h).padStart(2,'0')}:${m}`;
-        current.items.push({ time: paddedTime, place: rest, url: '', memo: '' });
-      } else {
-        // No time, treat as place
-        current.items.push({ time: '', place: cleaned, url: '', memo: '' });
-      }
-    }
-  }
-
-  // Filter out empty days, ensure at least one item per day
-  result.days = sections.filter(s => s.items.length > 0).map(s => ({
-    date: s.date,
-    items: s.items.length ? s.items : [{ time: '', place: '', url: '', memo: '' }]
-  }));
-
-  result.memo = memoLines.join('\n');
-
-  return result;
-}
-
 // ===== Plan ↔ Shiori Link =====
-function createShioriFromPlan(year, idx) {
-  const trip = tripPlans[year]?.[idx];
-  if (!trip || !trip.pref) return;
-
-  const month = trip.month ? `${trip.month}月` : '';
-  const title = `${trip.pref}たび ${year}年${month}`;
-
-  // Pre-fill dates if month is set
-  let startDate = '', endDate = '';
-  if (trip.month) {
-    const m = String(trip.month).padStart(2, '0');
-    startDate = `${year}-${m}-01`;
-    // Default 2 nights 3 days
-    const sd = new Date(startDate);
-    sd.setDate(sd.getDate() + 2);
-    endDate = sd.toISOString().split('T')[0];
-  }
-
-  const days = [];
-  if (startDate && endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const diff = Math.max(1, Math.round((end - start) / 86400000) + 1);
-    for (let i = 0; i < diff; i++) {
-      const d = new Date(start);
-      d.setDate(d.getDate() + i);
-      days.push({ date: d.toISOString().split('T')[0], items: [{ time: '', place: '', url: '', memo: '' }] });
-    }
-  } else {
-    days.push({ date: '', items: [{ time: '', place: '', url: '', memo: '' }] });
-  }
-
-  // Pre-fill spots as items on day 1
-  const spots = (trip.spots || []).filter(s => s);
-  spots.forEach((spot, i) => {
-    if (i === 0 && days[0]) {
-      days[0].items[0].place = spot;
-    } else if (days[0]) {
-      days[0].items.push({ time: '', place: spot, url: '', memo: '' });
-    }
-  });
-
-  const shiori = {
-    id: Date.now().toString(),
-    title,
-    pref: trip.pref,
-    startDate,
-    endDate,
-    days,
-    linkedPlan: { year, idx }
-  };
-
-  shioriData.unshift(shiori);
-  saveShiori();
-
-  // Link back from plan
-  trip.shioriId = shiori.id;
-  saveTripPlans();
-
-  // Navigate to shiori detail
-  switchNav('shiori');
-  openShioriDetail(shiori.id);
-}
-
 function openShioriFromPlan(shioriId) {
   switchNav('shiori');
   openShioriDetail(shioriId);
