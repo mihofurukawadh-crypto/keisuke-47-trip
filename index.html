@@ -3339,6 +3339,21 @@ function ensureIzuSeed() {
   localStorage.setItem('keisuke47_seed_shizuoka_izu', '1');
 }
 
+// 予定変更：Day2昼をエムニ→おおむろ軽食堂へ差し替え（既存ユーザーのしおりも更新）
+function ensureIzuDay2Update() {
+  const SEED_ID = 'seed-shizuoka-izu-2026';
+  const shiori = shioriData.find(s => s.id === SEED_ID);
+  if (!shiori) return;                          // まだ無ければ seed/ensure が最新版を作る
+  const day2 = shiori.days && shiori.days[1];
+  if (!day2 || !day2.items) return;
+  const isOld = day2.items.some(i => (i.place || '').includes('エムニ'));
+  if (!isOld) return;                           // すでに新版
+  const full = buildIzuShiori(SEED_ID);
+  day2.items = full.days[1].items;              // 2日目の予定を差し替え
+  shiori.importedMemo = full.importedMemo;
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+}
+
 function buildIzuShiori(id) {
   const it = (time, place, url, memo) => ({ time, place, url: url || '', memo: memo || '' });
   return {
@@ -3369,8 +3384,8 @@ function buildIzuShiori(id) {
           it('07:30', '起床・宿でゆっくり朝食🍙', '', '前日に村の駅などで仕込んだ地元食材で'),
           it('09:00', '大室山リフトで山頂へ🚡', '', '片道6分・けいすけ無料（膝乗せ）。暑さ次第で景色スポットだけでもOK'),
           it('09:45', '伊豆シャボテン動物公園🦫', '', '9:30開園・カピバラ・エサやり／温室や動物舎で日陰休憩・けいすけ無料'),
-          it('11:30', 'ふわふわかき氷 HELLO🍧', '', '大室高原・現金のみ。けいすけはミルク練乳なしのフルーツ系（当日「練乳なし」確認）'),
-          it('12:15', 'ランチ：オーガニックカフェ エムニ🥗', '', '赤沢・国道135号沿い／グルテンフリー＆ヴィーガン・けいすけも安心／※要予約・売り切れあり'),
+          it('11:30', 'ランチ：おおむろ軽食堂🍚', '', '大室山リフト館1F＝移動ゼロ・10:00〜16:00(LO15:00)・地産オーガニック志向・子連れOK。けいすけはごはんもの（しらす丼・とろろ丼など）でOK／うどん・フライ丼は小麦、前菜の一部・お茶請けの菓子は当日確認。※お昼は行列あり'),
+          it('12:45', 'ふわふわかき氷 HELLO🍧', '', 'シャボテンのすぐ近く・現金のみ。食後に涼む。けいすけはミルク練乳なしのフルーツ系（当日「練乳なし」確認）'),
           it('13:30', '車で宿へ戻る🚗', '', ''),
           it('14:00', '昼寝💤', '', '〜16:00・一番暑い午後を室内で回避'),
           it('16:15', '奏の森リゾートで奏のマルシェ🛍️', '', '十足・お買い物/お土産/おやつ（マルシェ〜18:00）。Day3朝の食材もここで'),
@@ -3440,7 +3455,7 @@ function buildIzuShiori(id) {
 ✅ 確認・予約チェックリスト
 ・米原⇄三島の新幹線（時刻確定→スマートEX/EX予約 or 駅）
 ・サンダンス・リゾートへ食事プラン＆アレルギーの電話
-・オーガニックカフェ エムニ（Day2昼）の予約
+・おおむろ軽食堂（Day2昼）は予約不可・お昼は行列あり→大室山を早めに切り上げて先に確保も
 ・キッチンZEN：夏の予約可否＆夜の部の混雑を電話/Instagramで確認（みほソロ）
 ・さわやか公式で当日の待ち時間チェック
 ・砂場：火曜の昼まで営業日でないか／座敷予約の要否（行くのは木曜なので基本OK）
@@ -5166,6 +5181,7 @@ async function cloudAutoSync() {
       ensureAnpanmanPlan();
       ensureIzuSeed();
       ensureIzuPlan();
+      ensureIzuDay2Update();
       ensureNagaragawaSeed();
       ensureNagaragawaPlan();
       ensureNagaragawaLogShiori();
@@ -5198,6 +5214,7 @@ seedMidorigaokaPlan();
 seedAnpanmanPlan();
 seedIzuShiori();
 seedIzuPlan();
+ensureIzuDay2Update();
 seedNagaragawaShiori();
 seedNagaragawaPlan();
 seedNagaragawaLogShiori();
