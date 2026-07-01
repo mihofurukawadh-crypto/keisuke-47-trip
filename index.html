@@ -3339,6 +3339,23 @@ function ensureIzuSeed() {
   localStorage.setItem('keisuke47_seed_shizuoka_izu', '1');
 }
 
+// 予定変更：Day2昼をエムニ→おおむろ軽食堂／Day3を9時発の前倒しへ（既存ユーザーのしおりも更新）
+function ensureIzuScheduleUpdate() {
+  const SEED_ID = 'seed-shizuoka-izu-2026';
+  const shiori = shioriData.find(s => s.id === SEED_ID);
+  if (!shiori || !shiori.days) return;          // まだ無ければ seed/ensure が最新版を作る
+  const day2 = shiori.days[1];
+  const day3 = shiori.days[2];
+  const day2Old = day2 && day2.items && day2.items.some(i => (i.place || '').includes('エムニ'));
+  const day3Old = day3 && day3.items && day3.items.some(i => (i.place || '').includes('チェックアウト'));
+  if (!day2Old && !day3Old) return;             // すでに新版
+  const full = buildIzuShiori(SEED_ID);
+  if (day2Old) day2.items = full.days[1].items; // 2日目の予定を差し替え
+  if (day3Old) day3.items = full.days[2].items; // 3日目を9時発の前倒しへ差し替え
+  shiori.importedMemo = full.importedMemo;
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+}
+
 function buildIzuShiori(id) {
   const it = (time, place, url, memo) => ({ time, place, url: url || '', memo: memo || '' });
   return {
@@ -3369,8 +3386,8 @@ function buildIzuShiori(id) {
           it('07:30', '起床・宿でゆっくり朝食🍙', '', '前日に村の駅などで仕込んだ地元食材で'),
           it('09:00', '大室山リフトで山頂へ🚡', '', '片道6分・けいすけ無料（膝乗せ）。暑さ次第で景色スポットだけでもOK'),
           it('09:45', '伊豆シャボテン動物公園🦫', '', '9:30開園・カピバラ・エサやり／温室や動物舎で日陰休憩・けいすけ無料'),
-          it('11:30', 'ふわふわかき氷 HELLO🍧', '', '大室高原・現金のみ。けいすけはミルク練乳なしのフルーツ系（当日「練乳なし」確認）'),
-          it('12:15', 'ランチ：オーガニックカフェ エムニ🥗', '', '赤沢・国道135号沿い／グルテンフリー＆ヴィーガン・けいすけも安心／※要予約・売り切れあり'),
+          it('11:30', 'ランチ：おおむろ軽食堂🍚', '', '大室山リフト館1F＝移動ゼロ・10:00〜16:00(LO15:00)・地産オーガニック志向・子連れOK。けいすけはごはんもの（しらす丼・とろろ丼など）でOK／うどん・フライ丼は小麦、前菜の一部・お茶請けの菓子は当日確認。※お昼は行列あり'),
+          it('12:45', 'ふわふわかき氷 HELLO🍧', '', 'シャボテンのすぐ近く・現金のみ。食後に涼む。けいすけはミルク練乳なしのフルーツ系（当日「練乳なし」確認）'),
           it('13:30', '車で宿へ戻る🚗', '', ''),
           it('14:00', '昼寝💤', '', '〜16:00・一番暑い午後を室内で回避'),
           it('16:15', '奏の森リゾートで奏のマルシェ🛍️', '', '十足・お買い物/お土産/おやつ（マルシェ〜18:00）。Day3朝の食材もここで'),
@@ -3382,14 +3399,15 @@ function buildIzuShiori(id) {
       {
         date: '2026-07-18',
         items: [
-          it('08:00', '宿でゆっくり朝食・荷造り🍙', '', '奏のマルシェ等で仕込んだ食材で'),
-          it('11:00', 'チェックアウト→伊東・湯川へ🚗', '', 'OUT11:00・荷物は車へ・約30分'),
-          it('11:45', '杉国商店で干物ランチ🐟', '', 'けいすけは「ひものセット」でOK／〜14:00営業'),
-          it('12:45', 'フルーツパーラー 伊豆旬実堂でパフェ🍨', '', '杉国商店のすぐ隣／けいすけはカットフルーツ・ジュース中心で'),
-          it('13:15', '北上🚗', '', '車内でけいすけの昼寝💤'),
-          it('14:15', '道の駅 伊豆ゲートウェイ函南で最後のお土産・休憩', '', '隣にめんたいパーク伊豆・わさびミュージアム'),
-          it('15:00', '三島駅へ🚗', '', ''),
-          it('15:30', '三島発（新幹線）→17:25頃 米原着🚄', '', 'こだま直通の目安・時間は仮。新幹線で昼寝の続きも')
+          it('07:00', '起床・宿で朝食・荷造り🍙', '', '奏のマルシェ等で仕込んだ食材で。早め出発のためちょっと早起き'),
+          it('08:45', '早めにチェックアウト精算🚗', '', 'OUT11:00やけど早出しでOK・荷物は車へ。前日に宿へ一声かけとくと安心'),
+          it('09:00', '宿発→伊東・湯川へ🚗', '', '約30分。母の帰宅を早めるため2時間前倒しプラン'),
+          it('09:30', '杉国商店で干物の早めランチ🐟', '', '7:30〜営業なので早めOK。けいすけは「ひものセット」／不定休のため当日営業を確認'),
+          it('10:15', 'フルーツパーラー 伊豆旬実堂でパフェ🍨', '', '杉国商店のすぐ隣・9:00〜営業／けいすけはカットフルーツ・ジュース中心で'),
+          it('10:45', '北上🚗', '', '国道135号沿い＝帰り道に沿ってスムーズ。車内でけいすけの昼寝💤'),
+          it('11:45', '道の駅 伊豆ゲートウェイ函南で最後のお土産・休憩', '', '隣にめんたいパーク伊豆・わさびミュージアム'),
+          it('12:30', '三島駅へ🚗', '', ''),
+          it('13:00', '三島発（新幹線）→15:00頃 米原着🚄', '', 'こだま直通の目安・時間は仮。帰宅が約2時間早まる。便はスマートEXで要確認（無ければ12:30/13:30前後）。新幹線で昼寝の続きも')
         ]
       }
     ],
@@ -3438,9 +3456,11 @@ function buildIzuShiori(id) {
 ・逃げ道：テディベア・ミュージアム（室内）、シャボテンの温室・動物舎・レッサーパンダ館
 
 ✅ 確認・予約チェックリスト
-・米原⇄三島の新幹線（時刻確定→スマートEX/EX予約 or 駅）
+・米原⇄三島の新幹線（時刻確定→スマートEX/EX予約 or 駅）※Day3は9時発の前倒し＝帰りは早い便（13:00頃）で
+・Day3は早めチェックアウト（9時発）にする旨をサンダンス・リゾートへ一声
+・杉国商店（Day3昼）は不定休→当日の営業を確認
 ・サンダンス・リゾートへ食事プラン＆アレルギーの電話
-・オーガニックカフェ エムニ（Day2昼）の予約
+・おおむろ軽食堂（Day2昼）は予約不可・お昼は行列あり→大室山を早めに切り上げて先に確保も
 ・キッチンZEN：夏の予約可否＆夜の部の混雑を電話/Instagramで確認（みほソロ）
 ・さわやか公式で当日の待ち時間チェック
 ・砂場：火曜の昼まで営業日でないか／座敷予約の要否（行くのは木曜なので基本OK）
@@ -5166,6 +5186,7 @@ async function cloudAutoSync() {
       ensureAnpanmanPlan();
       ensureIzuSeed();
       ensureIzuPlan();
+      ensureIzuScheduleUpdate();
       ensureNagaragawaSeed();
       ensureNagaragawaPlan();
       ensureNagaragawaLogShiori();
@@ -5198,6 +5219,7 @@ seedMidorigaokaPlan();
 seedAnpanmanPlan();
 seedIzuShiori();
 seedIzuPlan();
+ensureIzuScheduleUpdate();
 seedNagaragawaShiori();
 seedNagaragawaPlan();
 seedNagaragawaLogShiori();
