@@ -1247,9 +1247,16 @@
       font-size: 22px;
       cursor: pointer;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 2px;
       font-family: inherit;
+    }
+
+    .shiori-item-photo-add-label {
+      font-size: 10px;
+      font-weight: 700;
     }
 
     /* Packing / Budget / Weather sections */
@@ -3884,7 +3891,7 @@ function renderShioriDetail(shiori) {
                 <button class="shiori-item-photo-remove" onclick="removeShioriItemPhoto('${shiori.id}',${dayIdx},${itemIdx},${pi})">×</button>
               </div>
             `).join('')}
-            <button class="shiori-item-photo-add" onclick="document.getElementById('shioriPhotoInput-${dayIdx}-${itemIdx}').click()">＋</button>
+            <button class="shiori-item-photo-add" onclick="document.getElementById('shioriPhotoInput-${dayIdx}-${itemIdx}').click()">📷<span class="shiori-item-photo-add-label">写真をついか</span></button>
             <input type="file" id="shioriPhotoInput-${dayIdx}-${itemIdx}" accept="image/*" multiple style="display:none"
               onchange="addShioriItemPhotos('${shiori.id}',${dayIdx},${itemIdx},event)">
           </div>
