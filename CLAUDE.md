@@ -35,7 +35,7 @@ All state lives in module-level `let` globals, persisted to `localStorage` as JS
 Every mutation must call the matching `save*()` function (`saveData`, `saveTripPlans`, `saveShiori`) to flush to `localStorage`. After bulk changes call `updateAll()` to re-render progress, map, list, and backup stats.
 
 ### Prefecture map rendering
-`REGIONS` groups the 47 prefectures into 8 regions with colors. `GRID_POS` maps each prefecture to `[row, col]` on an 11-col × 15-row CSS grid. Overlaps are intentionally fixed up by later reassignments at the bottom of the `GRID_POS` block (e.g. 滋賀/岐阜/京都/大阪) — if you reorganize, preserve the final positions or the map will collide.
+`REGIONS` groups the 47 prefectures into 8 regions with colors. `GRID_POS` maps each prefecture to `[row, col]` on an 11-col × 15-row CSS grid (rows 0-14, cols 0-10). It is a single flat object literal — every prefecture appears exactly once, with no later reassignments. Two prefectures sharing a cell do NOT error: `renderMap()` appends both and the one drawn later (by `REGIONS` order) simply covers the other, so after editing positions verify that all 47 coordinates are still distinct.
 
 ### Cloud sync (Firebase)
 `FIREBASE_CONFIG` is embedded in `index.html` (public web API key — acceptable per Firebase's model, security is enforced by Firestore rules). Data is stored at `users/<cloudkey>` as a single JSON blob. The Firebase SDK is lazy-loaded via ES module `import()` from `gstatic.com`; `initFirebase()` memoizes the DB handle. The "cloudkey" is the user-chosen passphrase, not an auth credential — two users with the same key share data.
