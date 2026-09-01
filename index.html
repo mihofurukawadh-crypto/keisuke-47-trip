@@ -3766,6 +3766,173 @@ function buildNagaragawaLogShiori(id) {
   };
 }
 
+// ----- 若狭たび（福井・2026年9月）のしおり＆けいかく -----
+function seedWakasaShiori() {
+  const SEED_ID = 'seed-fukui-wakasa-2026';
+  try {
+    if (localStorage.getItem('keisuke47_seed_fukui_wakasa')) return;
+    if (shioriData.some(s => s.id === SEED_ID)) {
+      localStorage.setItem('keisuke47_seed_fukui_wakasa', '1');
+      return;
+    }
+    shioriData.unshift(buildWakasaShiori(SEED_ID));
+    saveShiori();
+    localStorage.setItem('keisuke47_seed_fukui_wakasa', '1');
+  } catch (e) {}
+}
+
+// クラウド取り込み後など、若狭しおりが無ければ足し直す
+function ensureWakasaSeed() {
+  const SEED_ID = 'seed-fukui-wakasa-2026';
+  if (!shioriData.some(s => s.id === SEED_ID)) {
+    shioriData.unshift(buildWakasaShiori(SEED_ID));
+  }
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_fukui_wakasa', '1');
+}
+
+function buildWakasaShiori(id) {
+  const it = (time, place, url, memo) => ({ time, place, url: url || '', memo: memo || '' });
+  return {
+    id,
+    title: 'けいすけと若狭たび🌊',
+    pref: '福井',
+    startDate: '2026-09-21',
+    endDate: '2026-09-23',
+    days: [
+      {
+        date: '2026-09-21',
+        items: [
+          it('07:00', '木之本を出発🚗', '', '国道303号で若狭へ。トイレは木之本より前ですませとく'),
+          it('08:00', '熊川宿を通過', '', '余裕があれば町並みをちょっとだけお散歩'),
+          it('08:20', '上中・三宅交差点で国道27号へ', '', '天徳寺の aaa CAFE 前を通過＝3日目の下見'),
+          it('09:00', '道の駅 若狭おばま', '', '9:00-18:00／駐車場無料96台'),
+          it('09:30', 'うみんぴあへ移動🚗', '', ''),
+          it('10:00', '福井県こども家族館🎈', '', '2時間制／就学前は無料（みほ分のみ数百円）・屋内で天気に左右されへん'),
+          it('12:00', '道の駅うみんぴあ大飯でお弁当🍙', '', '徒歩3分・芝生でのんびり'),
+          it('13:00', 'エルガイアおおい', '', '徒歩3分／入場無料'),
+          it('13:45', '高浜の宿へ移動＝お昼寝💤', '', '車が動き出したら寝かせる作戦'),
+          it('15:00', 'ホテルルートイン大飯高浜 チェックイン', '', '高浜町宮崎49-1-1'),
+          it('17:00', 'UMIKARA で夕食🐟', '', '9:00-19:00／宿から約1km。日持ちするものは翌日分もここで買っとく')
+        ]
+      },
+      {
+        date: '2026-09-22',
+        items: [
+          it('07:30', 'ホテルで朝食🍙', '', ''),
+          it('09:30', '若狭たかはまエルどらんど🌊', '', '開館と同時に入る／屋内・移動最小の日'),
+          it('11:45', '青葉山テラス shop 693 でお昼🍛', '', '10:00-16:00／薬膳カレー600円・1時間ゆっくり'),
+          it('12:45', '宿へ戻る🚗', '', ''),
+          it('13:15', 'お昼寝💤', '', '〜15:15の2時間しっかり'),
+          it('15:45', '若狭和田ビーチ🏖️', '', '夕方の砂遊び・涼しくなってから'),
+          it('16:45', 'UMIKARA で夕食の買い出し🐟', '', ''),
+          it('17:15', '宿へ→大浴場で砂を落とす♨️', '', 'そのままお部屋で夕食')
+        ]
+      },
+      {
+        date: '2026-09-23',
+        items: [
+          it('07:00', 'ホテルで朝食🍙', '', '11時の予約にそなえて早めに'),
+          it('08:30', 'チェックアウト', '', '荷物は全部車へ積んでから出る'),
+          it('09:30', '藤田園で一服🍵', '', '小浜市住吉77／煎茶・抹茶で ※営業要確認 0770-52-0304'),
+          it('10:15', '出発🚗', '', ''),
+          it('10:45', 'aaa CAFE 到着（若狭町天徳寺）', '', '1日目に前を通って下見した場所'),
+          it('11:00', 'ヴィーガンランチ🥗', '', '★予約済み'),
+          it('12:15', '移動＝お昼寝💤', '', ''),
+          it('13:00', 'レインボーライン山頂公園🚡', '', '駐車場800円／入園料1,000円／けいすけ無料。★必ずケーブルカーで（リフトは1名乗り）'),
+          it('14:45', '若狭三方IC方面から高速へ🚗', '', '帰宅は16時前後')
+        ]
+      }
+    ],
+    packing: [
+      { text: '🏖️ ビーチ用の着替え・タオル', checked: false },
+      { text: '🪣 砂遊びセット', checked: false },
+      { text: '🧊 クーラーボックス', checked: false },
+      { text: '🍙 車内朝食（おにぎり・バナナ・蒸したさつまいも等）', checked: false },
+      { text: '💧 水筒・飲みもの', checked: false },
+      { text: '🧥 朝夕の羽織りもの', checked: false },
+      { text: '🩲 おむつ多め', checked: false },
+      { text: '👕 着替え多め', checked: false },
+      { text: '📋 母子手帳・健康保険証', checked: false },
+      { text: '💊 常備薬', checked: false },
+      { text: '🎫 ホテルルートイン大飯高浜 予約票', checked: false }
+    ],
+    budget: {
+      planned: 5000,
+      expenses: []
+    },
+    importedMemo:
+`【日程】2026年9月21日(月・敬老の日)〜23日(水・秋分の日) 2泊3日
+【メンバー】みほ・けいすけ(1歳11ヶ月)
+【宿】ホテルルートイン大飯高浜（高浜町宮崎49-1-1）
+【移動】1日目＝下道（木之本→国道303号→熊川宿→上中・三宅交差点→国道27号）／3日目の帰り＝若狭三方IC方面から高速
+
+☎️ 出発前にやること
+・エルどらんど 9/22の営業と入場料を確認 0770-72-5890
+・藤田園 9/23の営業を確認 0770-52-0304
+・宿→天徳寺の所要時間を確認（11時のヴィーガンランチ予約に直結）
+・初日の下道の所要時間を確認（9:00に道の駅着で逆算）
+
+🏨 チェックイン時に確認
+・ベッドの配置（壁付けにできるか／ツインを寄せられるか）
+・冷蔵庫・電子レンジの有無
+
+💰 費用めやす（宿代・ガソリン・食費は別）
+・復路の高速代
+・こども家族館（みほ分のみ数百円／就学前は無料）
+・レインボーライン 駐車場800円＋入園料1,000円＝1,800円
+・エルどらんど 未確認
+・エルガイアおおい／脇坂海空公園／道の駅 は無料
+→ 合計5,000円前後
+
+📝 メモ
+・レインボーラインは★必ずケーブルカーで（リフトは1名乗りでけいすけと乗られへん）
+・UMIKARAは9:00-19:00。1日目の夕食のときに日持ちするものを翌日分も買っとく
+・車内朝食は運転中は食べさせない。停車したときに
+・2日目は移動最小の日。宿→エルどらんど→shop 693→宿→ビーチで無理なく`
+  };
+}
+
+function seedWakasaPlan() {
+  try {
+    if (localStorage.getItem('keisuke47_seed_fukui_plan')) return;
+    ensureWakasaPlan();
+  } catch (e) {}
+}
+
+// 2026年のけいかくに若狭の旅を登録し、若狭しおりと紐付ける
+function ensureWakasaPlan() {
+  const SEED_ID = 'seed-fukui-wakasa-2026';
+  const YEAR = 2026;
+  ensureYearPlans(YEAR);
+  const trips = tripPlans[YEAR];
+
+  // すでに紐付いてたら何もしない（位置はそのまま尊重）
+  let idx = trips.findIndex(t => t.shioriId === SEED_ID);
+  if (idx === -1) {
+    // 空き枠（県もしおりも未設定）を探して入れる。無ければユーザーデータを守って何もしない
+    idx = trips.findIndex(t => !t.pref && !t.shioriId);
+    if (idx === -1) return;
+    trips[idx] = {
+      pref: '福井',
+      month: '9',
+      spots: ['福井県こども家族館🎈', '若狭たかはまエルどらんど＆和田ビーチ🏖️', 'レインボーライン山頂公園🚡'],
+      shioriId: SEED_ID
+    };
+  } else {
+    if (!trips[idx].pref) trips[idx].pref = '福井';
+    if (!trips[idx].month) trips[idx].month = '9';
+  }
+
+  // しおり側にも双方向リンクを張る
+  const shiori = shioriData.find(s => s.id === SEED_ID);
+  if (shiori) shiori.linkedPlan = { year: YEAR, idx };
+
+  localStorage.setItem('keisuke47_tripplans', JSON.stringify(tripPlans));
+  localStorage.setItem('keisuke47_shiori', JSON.stringify(shioriData));
+  localStorage.setItem('keisuke47_seed_fukui_plan', '1');
+}
+
 function deleteShiori(id) {
   if (!confirm('このしおりを削除しますか？')) return;
   // Unlink from plan
@@ -4766,6 +4933,8 @@ async function cloudAutoSync() {
       ensureNagaragawaPlan();
       ensureNagaragawaLogShiori();
       ensureNagaragawaLogDay2();
+      ensureWakasaSeed();
+      ensureWakasaPlan();
       localStorage.setItem('keisuke47_lastsync', snap.data().updatedAt || '');
       _initialSyncDone = true;
       await pushToCloud();   // アンパンマンしおり等を反映して保存し直す
@@ -4799,6 +4968,8 @@ seedNagaragawaShiori();
 seedNagaragawaPlan();
 seedNagaragawaLogShiori();
 ensureNagaragawaLogDay2();
+seedWakasaShiori();
+seedWakasaPlan();
 updateAll();
 cloudAutoSync();
 </script>
